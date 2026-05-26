@@ -1,0 +1,9 @@
+playwright>=1.44.0
+pytest>=8.2.0
+pytest-playwright>=0.5.0
+pytest-html>=4.1.1
+allure-pytest>=2.13.5
+pillow>=11.0.0
+numpy>=2.0.0
+requests>=2.32.3
+python-dotenv>=1.0.1

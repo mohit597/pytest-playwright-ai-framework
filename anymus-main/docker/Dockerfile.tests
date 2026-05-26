@@ -1,0 +1,69 @@
+# ANYMUS — QA Test Runner Image
+# Includes: Python 3.11, Allure CLI, Playwright (Chromium), all pip deps
+#
+# Build:  docker build -f docker/Dockerfile.tests -t anymus-tests .
+# Run:    docker run --rm --network inventree_default \
+#           -v $(pwd)/allure-results:/app/allure-results \
+#           -v $(pwd)/allure-report:/app/allure-report \
+#           anymus-tests --api-only --base-url http://inventree-proxy
+
+FROM python:3.11-slim
+
+# ---------------------------------------------------------------------------
+# System deps: Java (required by Allure CLI), wget, curl, Playwright deps
+# ---------------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        default-jre-headless \
+        wget \
+        curl \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------------------------
+# Allure CLI
+# ---------------------------------------------------------------------------
+ARG ALLURE_VERSION=2.29.0
+RUN wget -q "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz" \
+    && tar -xzf allure-${ALLURE_VERSION}.tgz -C /opt \
+    && ln -s /opt/allure-${ALLURE_VERSION}/bin/allure /usr/local/bin/allure \
+    && rm allure-${ALLURE_VERSION}.tgz
+
+# ---------------------------------------------------------------------------
+# Python dependencies
+# ---------------------------------------------------------------------------
+WORKDIR /app
+
+COPY automation/api/requirements.txt /tmp/api-requirements.txt
+COPY automation/ui/requirements.txt  /tmp/ui-requirements.txt
+
+RUN pip install --no-cache-dir -r /tmp/api-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/ui-requirements.txt
+
+# Install Playwright + Chromium (headless, for UI tests)
+RUN playwright install --with-deps chromium
+
+# ---------------------------------------------------------------------------
+# Copy project
+# ---------------------------------------------------------------------------
+COPY . .
+
+# ---------------------------------------------------------------------------
+# Entrypoint: adds inventree.localhost DNS alias then runs the pipeline
+# ---------------------------------------------------------------------------
+RUN chmod +x docker/entrypoint.sh
+
+# ---------------------------------------------------------------------------
+# Environment defaults (override via -e or docker-compose env_file)
+# ---------------------------------------------------------------------------
+ENV INVENTREE_URL=http://anymus-ui \
+    INVENTREE_API_URL=http://inventree-server:8000 \
+    INVENTREE_USER=admin \
+    INVENTREE_PASS=inventree \
+    MOCK_MODE=false \
+    UPDATE_SNAPSHOTS=false \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["sh", "docker/entrypoint.sh"]
+# Default: API-only (safe for CI — no display server needed)
+CMD ["--api-only", "--base-url", "http://inventree-server:8000"]

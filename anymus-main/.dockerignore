@@ -1,0 +1,33 @@
+# ── Virtual environments (host-OS binaries are incompatible inside the container) ──
+**/.venv
+**/venv
+**/.env
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# ── Git ────────────────────────────────────────────────────────────────────────
+.git
+.gitignore
+
+# ── Node / JS ─────────────────────────────────────────────────────────────────
+**/node_modules
+**/.npm
+
+# ── Test artefacts (written at runtime, not needed in the image) ───────────────
+allure-results/
+allure-report/
+automation/api/reports/
+automation/ui/reports/
+automation/ui/snapshots/
+
+# ── Playwright local cache (container re-installs its own browser) ─────────────
+**/ms-playwright
+**/.cache
+
+# ── Editor / OS ───────────────────────────────────────────────────────────────
+.DS_Store
+.cursor
+*.swp
+*.swo

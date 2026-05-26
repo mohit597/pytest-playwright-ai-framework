@@ -1,0 +1,24 @@
+# ANYMUS — Results Dashboard Image
+# Minimal Python image that serves the live QA run dashboard on port 9090.
+#
+# Build:  docker build -f docker/Dockerfile.dashboard -t anymus-dashboard .
+# Run:    docker run --rm -p 9090:9090 \
+#           -v $(pwd)/agents/conversation-logs:/app/agents/conversation-logs \
+#           anymus-dashboard
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy only what the server needs — no test deps, no Playwright
+COPY scripts/serve_dashboard.py scripts/serve_dashboard.py
+COPY dashboard/                 dashboard/
+
+# agents/conversation-logs is mounted as a volume at runtime
+# (the directory must exist so Python doesn't error on startup)
+RUN mkdir -p agents/conversation-logs
+
+ENV DASHBOARD_PORT=9090
+EXPOSE 9090
+
+CMD ["python", "scripts/serve_dashboard.py"]

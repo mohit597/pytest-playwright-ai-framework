@@ -1,0 +1,15 @@
+# Environment — never commit credentials
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Test artefacts
+test-results/
+report.html
+
+# Snapshot actuals (not baselines)
+snapshots/*-actual.png

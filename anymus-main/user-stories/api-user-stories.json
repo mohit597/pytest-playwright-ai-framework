@@ -1,0 +1,1794 @@
+{
+  "project": "EPMCDMETST — EPM-CDME-TEST",
+  "jira_instance": "https://jiraeu.epam.com",
+  "extracted_via": "Claude Code (CodemIE) + Jira REST API v2 (Bearer Token)",
+  "extraction_date": "2026-04-14",
+  "total_stories": 44,
+  "story_range": "EPMCDMETST-37840 to EPMCDMETST-37883",
+  "ai_tools_used": [
+    "Claude Code via CodemIE — architecture, test design, test case generation",
+    "Official Atlassian Remote MCP (mcp.atlassian.com) — Jira connectivity setup",
+    "Jira REST API v2 — live story extraction with Bearer token",
+    "Cursor — test file extensions (test_part_revisions.py)",
+    "GitHub Copilot — CI/CD workflow generation"
+  ],
+  "stories": [
+    {
+      "key": "EPMCDMETST-37840",
+      "summary": "InvenTree Parts API – CRUD Operations",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37840",
+      "description": {
+        "summary": "Enable authenticated clients to perform create, retrieve, update, and delete operations on individual Parts via the API.",
+        "general_description": "Parts form the core entities of the system. The API will allow clients to manage part records, ensuring business constraints, field validation, and relational links are respected.",
+        "business_value": "Allows seamless integration and automation of part management from external systems, ensuring inventory accuracy and compliance.",
+        "preconditions": [
+          "InvenTree instance running with authentication.",
+          "Valid part categories exist for assignment."
+        ],
+        "scenarios": [
+          {
+            "name": "Create Part",
+            "given": "an authenticated API client",
+            "when": "a POST request with all required part fields and valid attributes is sent to /api/part/",
+            "then": "the part is created, returned with 201 status, and the part record is accessible"
+          }
+        ],
+        "expected_result": "CRUD endpoints allow for full part lifecycle operations, with validation and business rule enforcement.",
+        "affected_areas": [
+          "Part records",
+          "Category data",
+          "System audit logs"
+        ],
+        "acceptance_criteria": [
+          "Create, retrieve, update, delete operations function as specified.",
+          "Invalid payloads are rejected with descriptive errors.",
+          "All required fields must be present; nullable and immutable fields are enforced.",
+          "Unauthorized or unauthenticated requests are rejected."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37841",
+      "summary": "InvenTree Parts API – List, Filtering, Pagination, and Search",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37841",
+      "description": {
+        "summary": "Support listing, filtering, searching, and pagination of parts via API to optimize large inventory queries.",
+        "general_description": "Expose endpoints to list parts with optional filters on fields, with paginated responses and search capability as per API schema.",
+        "business_value": "Promotes efficient querying and enables integration workflows for inventory analytics and import/export.",
+        "preconditions": [
+          "Multiple part records exist."
+        ],
+        "scenarios": [
+          {
+            "name": "List Parts",
+            "given": "authenticated API client",
+            "when": "a GET request is sent to /api/part/",
+            "then": "a paginated list of all parts is returned"
+          }
+        ],
+        "expected_result": "List endpoint responds with paginated, filtered, and searched results as specified.",
+        "affected_areas": [
+          "Part list endpoint",
+          "API documentation"
+        ],
+        "acceptance_criteria": [
+          "Filtering, searching, and pagination operate as documented.",
+          "Metadata for pagination and filter links are included.",
+          "Invalid or excessive filters are rejected/ignored gracefully."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37842",
+      "summary": "InvenTree Part Categories API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37842",
+      "description": {
+        "summary": "Enable full management of part category hierarchy, including CRUD and parent/child relationships via API.",
+        "general_description": "Part categories are exposed via dedicated endpoints for creation, viewing, updating, deleting, and retrieving hierarchy, supporting nesting and relational integrity.",
+        "business_value": "Ensures accurate organization and grouping of parts, allowing efficient category management and reporting.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Create Category",
+            "given": "authenticated API client",
+            "when": "a POST request with valid category fields is sent to /api/part/category/",
+            "then": "category is created and returned"
+          }
+        ],
+        "expected_result": "Full lifecycle management of categories, preserving hierarchy and referential integrity.",
+        "affected_areas": [
+          "Category data",
+          "Part-category linkage"
+        ],
+        "acceptance_criteria": [
+          "CRUD operations enforce hierarchy rules and prevent orphaned part references.",
+          "Invalid, duplicate, or cyclical parent assignment is rejected."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37843",
+      "summary": "InvenTree Part Parameters API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37843",
+      "description": {
+        "summary": "Support management of parameters for parts, including creation, editing, retrieval, and deletion via API.",
+        "general_description": "Expose endpoints for adding, updating, removing parameter values from parts, which may be used for technical, commercial, or search purposes.",
+        "business_value": "Allows granular description and specification of parts, promoting complex inventory use-cases (e.g., parametric search, compliance).",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Add Parameter to Part",
+            "given": "authenticated API client",
+            "when": "a POST request with parameter data is sent to /api/part/{id}/parameter/",
+            "then": "the parameter is added and linked to the part"
+          }
+        ],
+        "expected_result": "Parameter management endpoints allow precise control of part specifications.",
+        "affected_areas": [
+          "Parameter records",
+          "Part-parameter links"
+        ],
+        "acceptance_criteria": [
+          "Parameters enforce uniqueness and data type.",
+          "Invalid or duplicate parameter addition is rejected.",
+          "Parameter deletion cascades correctly."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37844",
+      "summary": "InvenTree Part Templates & Variants API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37844",
+      "description": {
+        "summary": "Allow management of template parts and their variant relationships via dedicated API endpoints.",
+        "general_description": "Templates define common metadata for variant parts, with APIs for assigning, tracking, and managing variant-to-template links.",
+        "business_value": "Promotes efficient configuration and variant tracking for families of parts, reducing duplication and improving traceability.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Set Part as Template",
+            "given": "authenticated API client",
+            "when": "a PATCH request updates a part with template=true",
+            "then": "the part is marked as template"
+          }
+        ],
+        "expected_result": "Templates and variant APIs enforce relationships and constraints.",
+        "affected_areas": [
+          "Part records",
+          "Template/variant field"
+        ],
+        "acceptance_criteria": [
+          "Variants reference template parts only.",
+          "Template deletion checks for variant existence and blocks if necessary.",
+          "Circular or invalid template assignment is rejected."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37845",
+      "summary": "InvenTree Part Revisions API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37845",
+      "description": {
+        "summary": "Enable assignment and management of part revisions via API, enforcing business constraints.",
+        "general_description": "Expose endpoints for creating revisions, updating revision fields, and linking parts to revision histories with strict integrity checks.",
+        "business_value": "Supports controlled lifecycle and traceability for part changes, ensuring compliance and reducing errors from revision mismanagement.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Create Revision",
+            "given": "authenticated API client",
+            "when": "a PATCH request updates a part with revision_of referencing another part",
+            "then": "a revision is created, and revision-of-revision is prevented"
+          }
+        ],
+        "expected_result": "Revisions are created and managed according to business constraints.",
+        "affected_areas": [
+          "Part records",
+          "Revision fields"
+        ],
+        "acceptance_criteria": [
+          "Revision linkages are validated for uniqueness and circular prevention.",
+          "Inactive revisions or duplicate codes are rejected.",
+          "Revision listing matches history."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37846",
+      "summary": "InvenTree Part BOM (Bill of Materials) API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37846",
+      "description": {
+        "summary": "Enable BOM assignment and management for parts via API, supporting multi-level and component links.",
+        "general_description": "Endpoints permit adding/removing BOM items (component parts) to parent parts, enforcing assembly/component role constraints and BOM structure validity.",
+        "business_value": "Supports manufacturing and production workflows, allowing accurate BOM tracking and updates across inventory.",
+        "preconditions": [
+          "Authentication active",
+          "Parent and component parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Add BOM Item",
+            "given": "authenticated API client",
+            "when": "a POST request with component part and quantity is sent to /api/part/{id}/bom/",
+            "then": "BOM line is created and linked to parent part"
+          }
+        ],
+        "expected_result": "BOM endpoints allow comprehensive management with assembly/component checks.",
+        "affected_areas": [
+          "Part records",
+          "BOM records"
+        ],
+        "acceptance_criteria": [
+          "BOM item must reference valid parts.",
+          "Duplicate or invalid BOM assignments are blocked.",
+          "Assembly/component flags are validated."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37847",
+      "summary": "InvenTree Part Attachments API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37847",
+      "description": {
+        "summary": "Permit file attachment upload, retrieval, and removal for parts via API.",
+        "general_description": "Endpoints allow parts to be associated with documents, images, or PDFs for compliance or reference.",
+        "business_value": "Enables traceable document storage per part, helping engineering, compliance, and quality workflows.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Upload Attachment",
+            "given": "authenticated API client",
+            "when": "a POST request with valid file is sent to /api/part/{id}/attachment/",
+            "then": "attachment is uploaded and linked to part"
+          }
+        ],
+        "expected_result": "Attachment endpoints allow secure upload, retrieval and removal per part.",
+        "affected_areas": [
+          "Files/Docs linked to part"
+        ],
+        "acceptance_criteria": [
+          "Attachment upload enforces size and type limits.",
+          "Attachments are deleted from system storage.",
+          "Invalid files are rejected."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37848",
+      "summary": "InvenTree Related Parts API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37848",
+      "description": {
+        "summary": "Enable management of related parts links via API for referencing substitutes or complementary items.",
+        "general_description": "API endpoints allow creation, listing, and removal of part-to-part relationships.",
+        "business_value": "Supports enhanced search, alternative provisioning, and compatibility checks for inventory.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Add Related Part",
+            "given": "authenticated API client",
+            "when": "a POST request with related part ID is sent to /api/part/{id}/related/",
+            "then": "related link is created"
+          }
+        ],
+        "expected_result": "The related parts API maintains valid cross-references.",
+        "affected_areas": [
+          "Part relationships"
+        ],
+        "acceptance_criteria": [
+          "Self-references or circular links are blocked.",
+          "Duplicate related links are prevented."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37849",
+      "summary": "InvenTree Part Custom Fields & Attributes API",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37849",
+      "description": {
+        "summary": "Expose endpoints for managing custom fields and business attributes (trackable, virtual, assembly, component, purchaseable, salable, units, etc.) via API.",
+        "general_description": "API will support creation and editing of attributes per documented schema, ensuring that all business rules are enforced for each flag.",
+        "business_value": "Permits deep customization and compliance for parts, supporting advanced inventory models.",
+        "preconditions": [
+          "Authentication active"
+        ],
+        "scenarios": [
+          {
+            "name": "Update Attributes",
+            "given": "authenticated API client",
+            "when": "a PATCH request with supported attribute flags and units is sent to /api/part/{id}/",
+            "then": "attributes are set and validated"
+          }
+        ],
+        "expected_result": "Part records accurately reflect custom attributes, and unsupported assignments are blocked.",
+        "affected_areas": [
+          "Part schema",
+          "Attribute validation logic"
+        ],
+        "acceptance_criteria": [
+          "All business flags/attributes can be set and updated.",
+          "Invalid, conflicting, or unsupported attribute combinations are rejected.",
+          "Units of measure supported as per system configuration."
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37850",
+      "summary": "API: Validate Required Fields for Part Creation",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37850",
+      "description": {
+        "summary": "Validate required field enforcement for Part creation via API.",
+        "general_description": "The API must enforce all required fields during Part creation and return descriptive validation errors when mandatory fields are missing or invalid.",
+        "business_value": "Ensures data integrity and prevents incomplete part records from being created in the inventory system.",
+        "preconditions": [
+          "API authentication configured",
+          "Knowledge of required fields from schema (name, category, etc.)"
+        ],
+        "scenarios": [
+          {
+            "name": "Create Part without required 'name' field",
+            "given": "an authenticated API client",
+            "when": "a POST request to /api/part/ is sent without the 'name' field",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "API enforces required field validation with clear error messages.",
+        "affected_areas": [
+          "Part creation endpoint",
+          "Validation logic",
+          "Error response formatting"
+        ],
+        "acceptance_criteria": [
+          "Missing required fields result in 400 status with field-specific error messages",
+          "Empty or whitespace-only values for required fields are rejected",
+          "Response clearly identifies which field(s) failed validation",
+          "Valid requests with all required fields succeed with 201"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37851",
+      "summary": "API: Validate Max Length Constraints for Part Fields",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37851",
+      "description": {
+        "summary": "Validate field length constraints (max length) for Part fields via API.",
+        "general_description": "API must enforce maximum character length limits on text fields and reject requests exceeding these limits with clear error messages.",
+        "business_value": "Prevents database constraint violations and ensures data consistency across the system.",
+        "preconditions": [
+          "API authentication configured",
+          "Schema defines max lengths for fields (e.g., name, description, IPN)"
+        ],
+        "scenarios": [
+          {
+            "name": "Create Part with name exceeding max length",
+            "given": "an authenticated API client",
+            "when": "a POST request to /api/part/ is sent with name field exceeding max length (e.g., 300 characters when max is 100)",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "All text fields enforce max length with descriptive errors.",
+        "affected_areas": [
+          "Part creation and update endpoints",
+          "Field validation logic"
+        ],
+        "acceptance_criteria": [
+          "Fields exceeding max length are rejected with 400 status",
+          "Error message specifies which field and the max length allowed",
+          "Fields at exactly max length are accepted",
+          "Validation applies to both POST (create) and PATCH (update) operations"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37852",
+      "summary": "API: Validate Nullable Field Constraints for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37852",
+      "description": {
+        "summary": "Validate nullable vs non-nullable field constraints for Part API operations.",
+        "general_description": "API must correctly enforce nullable field rules, allowing null values only for optional fields while rejecting null for required fields.",
+        "business_value": "Ensures schema compliance and prevents null-pointer exceptions or data integrity issues.",
+        "preconditions": [
+          "API authentication configured",
+          "Schema defines which fields are nullable"
+        ],
+        "scenarios": [
+          {
+            "name": "Set nullable field to null",
+            "given": "an authenticated API client",
+            "when": "a POST/PATCH request sets the field to null",
+            "then": "the API accepts the request"
+          }
+        ],
+        "expected_result": "Nullable constraints are enforced correctly per schema definition.",
+        "affected_areas": [
+          "All Part API endpoints",
+          "Field validation logic"
+        ],
+        "acceptance_criteria": [
+          "Nullable fields accept null values without error",
+          "Non-nullable fields reject null with 400 status",
+          "Optional fields can be omitted in requests",
+          "Error messages clearly identify non-nullable constraint violations"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37853",
+      "summary": "API: Validate Read-Only Field Protection for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37853",
+      "description": {
+        "summary": "Validate read-only field protection in Part API update operations.",
+        "general_description": "API must prevent modification of read-only fields (e.g., id, creation date, calculated fields) and reject or ignore attempts to update them.",
+        "business_value": "Protects system-managed data from corruption and maintains audit trail integrity.",
+        "preconditions": [
+          "API authentication configured",
+          "Part record exists",
+          "Schema defines read-only fields"
+        ],
+        "scenarios": [
+          {
+            "name": "Attempt to modify read-only 'id' field",
+            "given": "an authenticated API client",
+            "when": "a PATCH request to /api/part/123/ attempts to change id to 456",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "Read-only fields cannot be modified via API.",
+        "affected_areas": [
+          "Part update endpoint",
+          "Field access control logic"
+        ],
+        "acceptance_criteria": [
+          "Attempts to modify read-only fields result in 400 error or are silently ignored",
+          "Read-only fields include: id, pk, creation date, last updated by system",
+          "Writable fields can be updated normally",
+          "Documentation clearly marks read-only fields"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37854",
+      "summary": "API: Enforce Unique IPN Constraint for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37854",
+      "description": {
+        "summary": "Enforce unique Internal Part Number (IPN) constraint via API to prevent duplicate IPN creation.",
+        "general_description": "The API must validate IPN uniqueness across all parts and reject creation or update attempts that would create duplicate IPNs.",
+        "business_value": "Prevents inventory confusion, maintains data integrity, and ensures unique part identification.",
+        "preconditions": [
+          "API authentication configured",
+          "IPN field is defined as unique in schema",
+          "At least one part with IPN exists"
+        ],
+        "scenarios": [
+          {
+            "name": "Create part with duplicate IPN",
+            "given": "an authenticated API client",
+            "when": "a POST request to /api/part/ is sent with IPN=\"ABC-123\"",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "IPN uniqueness is enforced across all parts.",
+        "affected_areas": [
+          "Part creation and update endpoints",
+          "Uniqueness validation logic"
+        ],
+        "acceptance_criteria": [
+          "Duplicate IPN creation/update attempts return 400 with clear error",
+          "IPN comparison is case-insensitive (or per business rules)",
+          "Null IPNs are allowed if field is optional, multiple nulls permitted",
+          "Error message identifies the conflicting IPN value"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37855",
+      "summary": "API: Validate Part Attribute Flags and Combinations",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37855",
+      "description": {
+        "summary": "Validate all Part attribute flags (Virtual, Template, Assembly, Component, Trackable, Purchaseable, Salable, Active) via API.",
+        "general_description": "API must correctly handle boolean attribute flags, enforce business rules for flag combinations, and reject invalid or conflicting attribute states.",
+        "business_value": "Ensures parts are properly classified for inventory operations, purchasing, sales, and manufacturing workflows.",
+        "preconditions": [
+          "API authentication configured",
+          "Business rules for attribute combinations defined"
+        ],
+        "scenarios": [
+          {
+            "name": "Set part as Template",
+            "given": "an authenticated API client",
+            "when": "a POST/PATCH request sets template=true",
+            "then": "the API accepts the request"
+          }
+        ],
+        "expected_result": "All attribute flags are validated and enforced per business rules.",
+        "affected_areas": [
+          "Part creation/update endpoints",
+          "Attribute validation logic",
+          "Dependent workflows (purchasing, sales, manufacturing)"
+        ],
+        "acceptance_criteria": [
+          "All boolean attributes can be set individually",
+          "Invalid attribute combinations are rejected with descriptive errors",
+          "Inactive parts trigger appropriate workflow restrictions",
+          "Template parts can have variants linked to them",
+          "Assembly parts can have BOM structures"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37856",
+      "summary": "API: Validate Units of Measure for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37856",
+      "description": {
+        "summary": "Validate Units of Measure assignment and configuration for Parts via API.",
+        "general_description": "API must support assignment of valid units of measure to parts and reject invalid or unsupported unit values.",
+        "business_value": "Ensures accurate inventory tracking, stock calculations, and purchasing/sales operations with correct units.",
+        "preconditions": [
+          "API authentication configured",
+          "System has configured units of measure",
+          "Unit validation rules defined"
+        ],
+        "scenarios": [
+          {
+            "name": "Assign valid unit of measure",
+            "given": "an authenticated API client",
+            "when": "a POST request sets units=\"pcs\"",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Units of measure are validated against configured system values.",
+        "affected_areas": [
+          "Part creation/update endpoints",
+          "Units configuration",
+          "Stock tracking calculations"
+        ],
+        "acceptance_criteria": [
+          "Only valid, system-configured units are accepted",
+          "Invalid units return 400 with list of valid options",
+          "Unit changes are logged/audited",
+          "Unit validation is case-insensitive (or per system config)"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37857",
+      "summary": "API: Prevent Circular References in Part Revisions",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37857",
+      "description": {
+        "summary": "Prevent circular reference creation in Part Revisions via API.",
+        "general_description": "API must detect and prevent circular revision references (e.g., Part A revision of Part B, Part B revision of Part A) and reject revision-of-revision assignments.",
+        "business_value": "Maintains revision integrity, prevents infinite loops, and ensures clear revision history lineage.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts exist with revision relationships"
+        ],
+        "scenarios": [
+          {
+            "name": "Create direct circular reference",
+            "given": "Part A exists with revision_of=Part B",
+            "when": "a PATCH request sets Part B revision_of=Part A",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "All circular and invalid revision references are prevented.",
+        "affected_areas": [
+          "Part creation/update endpoints",
+          "Revision validation logic",
+          "Revision history queries"
+        ],
+        "acceptance_criteria": [
+          "Direct circular references are blocked",
+          "Revision-of-revision is prevented (only original parts can be revised)",
+          "Self-references are blocked",
+          "Error messages clearly explain the violation",
+          "Valid linear revision chains are supported"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37858",
+      "summary": "API: Enforce Unique Revision Codes per Part Family",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37858",
+      "description": {
+        "summary": "Enforce unique revision codes within revision chains via API.",
+        "general_description": "API must validate that revision codes are unique within a revision family (original part and all its revisions) to prevent duplicate revision identification.",
+        "business_value": "Ensures clear revision tracking and prevents confusion in version control.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts with revisions exist",
+          "Revision code field is used"
+        ],
+        "scenarios": [
+          {
+            "name": "Create revision with duplicate code in same family",
+            "given": "Part A (original) has revision code=\"v1\"",
+            "when": "a POST request creates Part C (revision of A) with revision code=\"v2\"",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "Revision codes are unique within each part's revision family.",
+        "affected_areas": [
+          "Part creation endpoint",
+          "Revision validation logic"
+        ],
+        "acceptance_criteria": [
+          "Duplicate revision codes within same family are rejected",
+          "Revision codes can be reused across different part families",
+          "Error message identifies the conflicting code and part",
+          "Null/empty revision codes handled per business rules"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37859",
+      "summary": "API: Enforce Template-Only Revision Restriction",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37859",
+      "description": {
+        "summary": "Enforce that only Template parts can have revisions via API.",
+        "general_description": "API must validate that revision_of can only reference parts marked as Template=true and reject revision assignments to non-template parts.",
+        "business_value": "Enforces business rules for revision control and prevents improper revision hierarchies.",
+        "preconditions": [
+          "API authentication configured",
+          "Understanding of Template attribute and revision rules"
+        ],
+        "scenarios": [
+          {
+            "name": "Create revision of non-template part",
+            "given": "Part A exists with template=false",
+            "when": "a POST request creates Part B with revision_of=Part A",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "Revision restrictions based on Template attribute are enforced.",
+        "affected_areas": [
+          "Part creation/update endpoints",
+          "Template and revision validation logic"
+        ],
+        "acceptance_criteria": [
+          "Only template=true parts can be referenced in revision_of",
+          "Attempts to create revisions of non-templates return 400",
+          "Cannot change template to false if part has revisions",
+          "Error messages clearly explain template-revision constraint"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37860",
+      "summary": "API: Enforce Inactive Part Operation Restrictions",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37860",
+      "description": {
+        "summary": "Enforce restrictions on operations involving inactive parts via API.",
+        "general_description": "API must apply business rules that restrict certain operations (e.g., adding to BOM, purchasing, selling) on parts marked as inactive.",
+        "business_value": "Prevents use of obsolete or discontinued parts in active operations while maintaining historical data.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts exist with active=true and active=false states"
+        ],
+        "scenarios": [
+          {
+            "name": "Attempt to add inactive part to BOM",
+            "given": "Part A is inactive (active=false)",
+            "when": "a POST request attempts to add Part A to Part B's BOM",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "Inactive parts are restricted per business rules but remain queryable.",
+        "affected_areas": [
+          "BOM assignment endpoints",
+          "Purchase/sales order endpoints",
+          "Part listing and filtering"
+        ],
+        "acceptance_criteria": [
+          "Inactive parts cannot be added to new BOMs",
+          "Inactive parts cannot be used in new purchase/sales orders (if business rule applies)",
+          "Inactive parts can still be queried individually",
+          "Filtering by active status works correctly",
+          "Parts can be deactivated and reactivated"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37861",
+      "summary": "API: Validate Category Hierarchy and Prevent Orphaned References",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37861",
+      "description": {
+        "summary": "Validate category hierarchy creation, parent-child relationships, and prevent orphaned references via API.",
+        "general_description": "API must support multi-level category hierarchies, validate parent references, and prevent deletion of categories that would orphan parts or child categories.",
+        "business_value": "Ensures organized part categorization and prevents data integrity issues from broken category relationships.",
+        "preconditions": [
+          "API authentication configured",
+          "Category hierarchy exists"
+        ],
+        "scenarios": [
+          {
+            "name": "Create top-level category",
+            "given": "an authenticated API client",
+            "when": "a POST request to /api/part/category/ creates a category with parent=null",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Category hierarchy integrity is maintained.",
+        "affected_areas": [
+          "Category CRUD endpoints",
+          "Hierarchy validation logic",
+          "Part-category relationships"
+        ],
+        "acceptance_criteria": [
+          "Multi-level hierarchies are supported",
+          "Invalid parent references are rejected",
+          "Categories with children cannot be deleted",
+          "Categories with assigned parts cannot be deleted",
+          "Circular parent references are prevented"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37862",
+      "summary": "API: Prevent Circular Parent References in Categories",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37862",
+      "description": {
+        "summary": "Prevent circular parent references in category hierarchy via API.",
+        "general_description": "API must detect and block circular category references (e.g., Category A parent of B, B parent of C, C parent of A).",
+        "business_value": "Prevents infinite loops in category traversal and maintains hierarchy integrity.",
+        "preconditions": [
+          "API authentication configured",
+          "Category hierarchy exists"
+        ],
+        "scenarios": [
+          {
+            "name": "Create direct circular reference",
+            "given": "Category A has parent=Category B",
+            "when": "a PATCH request sets Category B parent=Category A",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "All circular category references are prevented.",
+        "affected_areas": [
+          "Category update endpoint",
+          "Hierarchy validation logic"
+        ],
+        "acceptance_criteria": [
+          "Direct and indirect circular references are detected and blocked",
+          "Self-references are prevented",
+          "Error messages clearly explain the circular path",
+          "Valid hierarchies of any depth are supported"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37863",
+      "summary": "API: Validate Template-Variant Relationships",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37863",
+      "description": {
+        "summary": "Validate template-variant relationships and prevent invalid variant assignments via API.",
+        "general_description": "API must enforce that variants can only reference parts marked as template=true, and prevent circular or invalid variant relationships.",
+        "business_value": "Ensures proper variant tracking and prevents misuse of template/variant feature.",
+        "preconditions": [
+          "API authentication configured",
+          "Template and non-template parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Create variant of template part",
+            "given": "Part A exists with template=true",
+            "when": "a POST request creates Part B with variant_of=Part A",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Variant relationships are validated and enforced.",
+        "affected_areas": [
+          "Part creation/update endpoints",
+          "Template/variant validation logic",
+          "Variant listing endpoint"
+        ],
+        "acceptance_criteria": [
+          "Only template parts can have variants",
+          "Variants cannot have sub-variants",
+          "Cannot remove template flag if variants exist",
+          "Circular references are prevented",
+          "Variant listing returns all associated variants"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37864",
+      "summary": "API: Validate BOM Structure and Component Relationships",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37864",
+      "description": {
+        "summary": "Validate BOM component relationships and prevent invalid BOM assignments via API.",
+        "general_description": "API must enforce that only assembly=true parts can have BOMs, validate component part references, prevent duplicate BOM items, and enforce quantity constraints.",
+        "business_value": "Ensures accurate bill of materials structures for manufacturing and prevents invalid component assignments.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts with assembly attribute exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Add BOM item to assembly part",
+            "given": "Part A has assembly=true",
+            "when": "a POST request to /api/bom/ adds Part B to Part A's BOM with quantity=5",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "BOM structure validation prevents invalid assemblies.",
+        "affected_areas": [
+          "BOM CRUD endpoints",
+          "Assembly validation logic",
+          "Part relationships"
+        ],
+        "acceptance_criteria": [
+          "Only assembly parts can have BOM items",
+          "Duplicate components in same BOM are prevented",
+          "Quantities must be positive numbers",
+          "Component part references are validated",
+          "BOM items can be added, updated, deleted"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37865",
+      "summary": "API: Validate Parameter Templates and Part Parameter Assignments",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37865",
+      "description": {
+        "summary": "Validate parameter template definitions and part parameter assignments via API.",
+        "general_description": "API must support creation of parameter templates, assignment of parameters to parts, validation of parameter data types, and enforcement of uniqueness constraints.",
+        "business_value": "Enables structured parametric part specifications for search, comparison, and compliance tracking.",
+        "preconditions": [
+          "API authentication configured",
+          "Parameter templates exist or can be created"
+        ],
+        "scenarios": [
+          {
+            "name": "Create parameter template",
+            "given": "an authenticated API client",
+            "when": "a POST request to /api/part/parameter/template/ creates a template with name=\"Voltage\" and units=\"V\"",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Parameter templates and assignments are validated.",
+        "affected_areas": [
+          "Parameter template endpoints",
+          "Part parameter assignment endpoints",
+          "Data type validation"
+        ],
+        "acceptance_criteria": [
+          "Parameter templates can be created with name, units, data type",
+          "Parameters can be assigned to parts with proper values",
+          "Duplicate parameters per part are prevented",
+          "Data type validation is enforced",
+          "Parameter values can be updated and deleted"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37866",
+      "summary": "API: Implement and Validate Pagination Controls for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37866",
+      "description": {
+        "summary": "Implement comprehensive pagination, offset, and limit controls for Part list API endpoint.",
+        "general_description": "API must support pagination parameters (page, page_size, limit, offset) and return proper metadata for navigating large result sets.",
+        "business_value": "Enables efficient retrieval of large part inventories and improves client application performance.",
+        "preconditions": [
+          "API authentication configured",
+          "Large dataset of parts exists (100+ parts recommended for testing)"
+        ],
+        "scenarios": [
+          {
+            "name": "Retrieve first page with default page size",
+            "given": "150 parts exist",
+            "when": "a GET request to /api/part/ is made without pagination params",
+            "then": "the API returns first page with default page size (e.g., 25)"
+          }
+        ],
+        "expected_result": "Pagination operates correctly with proper metadata.",
+        "affected_areas": [
+          "Part list endpoint",
+          "Pagination logic"
+        ],
+        "acceptance_criteria": [
+          "Default pagination is applied when no params specified",
+          "Custom page and page_size parameters work correctly",
+          "Offset and limit parameters work correctly",
+          "Response includes: count (total), next (URL), previous (URL)",
+          "Out-of-range pages return empty results, not errors",
+          "Invalid pagination params return 400 with clear errors"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37867",
+      "summary": "API: Implement Full-Text Search for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37867",
+      "description": {
+        "summary": "Implement full-text and field-specific search capabilities for Parts API.",
+        "general_description": "API must support searching parts by name, description, IPN, keywords across multiple fields with relevance ranking.",
+        "business_value": "Enables users to quickly find parts using natural search queries, improving inventory discoverability.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts with varied names, descriptions, and IPNs exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Search by part name",
+            "given": "parts exist with names containing \"resistor\"",
+            "when": "a GET request with ?search=resistor is made",
+            "then": "only parts with \"resistor\" in name are returned"
+          }
+        ],
+        "expected_result": "Search returns relevant parts with proper matching.",
+        "affected_areas": [
+          "Part list endpoint",
+          "Search query processing"
+        ],
+        "acceptance_criteria": [
+          "Search parameter works across name, description, IPN fields",
+          "Search is case-insensitive",
+          "Partial matches are supported",
+          "Empty search term returns all parts (or error)",
+          "Search can be combined with filters and pagination",
+          "No results returns 200 with empty array, not 404"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37868",
+      "summary": "API: Implement Field-Specific Filtering for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37868",
+      "description": {
+        "summary": "Implement comprehensive field-specific filtering for Parts API (active, category, template, salable, purchaseable, assembly, etc.).",
+        "general_description": "API must support filtering parts by all boolean flags, category, and other attributes with proper query parameter handling.",
+        "business_value": "Enables precise part queries for specific use cases (e.g., \"show only active, purchaseable parts in Electronics category\").",
+        "preconditions": [
+          "API authentication configured",
+          "Parts exist with diverse attribute combinations"
+        ],
+        "scenarios": [
+          {
+            "name": "Filter by active status",
+            "given": "parts exist with active=true and active=false",
+            "when": "a GET request with ?active=true is made",
+            "then": "only active parts are returned"
+          }
+        ],
+        "expected_result": "All attribute filters work individually and in combination.",
+        "affected_areas": [
+          "Part list endpoint",
+          "Query filter processing"
+        ],
+        "acceptance_criteria": [
+          "All boolean attributes can be filtered (active, template, assembly, component, trackable, purchaseable, salable, virtual)",
+          "Category filter accepts category ID",
+          "Multiple filters can be combined with AND logic",
+          "Invalid filter values are handled gracefully",
+          "Filters work correctly with pagination and search"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37869",
+      "summary": "API: Implement Sorting/Ordering for Parts List",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37869",
+      "description": {
+        "summary": "Implement sorting/ordering capabilities for Parts API list endpoint.",
+        "general_description": "API must support ordering results by various fields (name, IPN, category, creation date, etc.) in ascending or descending order.",
+        "business_value": "Enables organized result presentation and helps users find parts based on sort priority.",
+        "preconditions": [
+          "API authentication configured",
+          "Multiple parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Sort by name ascending",
+            "given": "parts exist with various names",
+            "when": "a GET request with ?ordering=name is made",
+            "then": "parts are returned sorted A-Z by name"
+          }
+        ],
+        "expected_result": "Ordering operates correctly for all supported fields.",
+        "affected_areas": [
+          "Part list endpoint",
+          "Query ordering logic"
+        ],
+        "acceptance_criteria": [
+          "Ascending order uses field name (e.g., ?ordering=name)",
+          "Descending order uses minus prefix (e.g., ?ordering=-name)",
+          "Supported ordering fields include: name, IPN, category, created, updated",
+          "Multi-field sorting is supported",
+          "Ordering works correctly with filters, search, and pagination",
+          "Invalid ordering fields are rejected or ignored gracefully"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37870",
+      "summary": "API: Validate Authentication and Authorization Controls",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37870",
+      "description": {
+        "summary": "Validate authentication and authorization controls for all Parts API endpoints.",
+        "general_description": "API must enforce authentication (valid token/session required) and authorization (user permissions) for all operations, returning proper HTTP status codes for violations.",
+        "business_value": "Protects sensitive inventory data and ensures only authorized users can modify parts.",
+        "preconditions": [
+          "Authentication system configured",
+          "User roles and permissions defined"
+        ],
+        "scenarios": [
+          {
+            "name": "Access API without authentication",
+            "given": "no authentication token is provided",
+            "when": "any request is made to /api/part/",
+            "then": "the API returns 401 Unauthorized"
+          }
+        ],
+        "expected_result": "Authentication and authorization are enforced consistently.",
+        "affected_areas": [
+          "All Part API endpoints",
+          "Authentication middleware",
+          "Permission checking logic"
+        ],
+        "acceptance_criteria": [
+          "401 returned for missing/invalid authentication",
+          "403 returned for insufficient permissions",
+          "All endpoints require authentication",
+          "Role-based access control (RBAC) is enforced",
+          "Permission checks apply to: read, create, update, delete operations",
+          "Error messages do not leak sensitive system information"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37871",
+      "summary": "API: Validate Error Handling for Malformed Requests",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37871",
+      "description": {
+        "summary": "Validate API error handling for malformed requests, invalid JSON, and unexpected inputs.",
+        "general_description": "API must gracefully handle malformed requests with proper HTTP status codes and descriptive error messages without exposing system internals.",
+        "business_value": "Ensures API robustness, improves client debugging, and prevents security vulnerabilities from error information leakage.",
+        "preconditions": [
+          "API authentication configured"
+        ],
+        "scenarios": [
+          {
+            "name": "Send malformed JSON",
+            "given": "an authenticated API client",
+            "when": "a POST request with invalid JSON syntax is sent (e.g., missing closing brace)",
+            "then": "the API returns 400 Bad Request"
+          }
+        ],
+        "expected_result": "All error scenarios return appropriate HTTP codes and helpful messages.",
+        "affected_areas": [
+          "All API endpoints",
+          "Error handling middleware",
+          "Input validation"
+        ],
+        "acceptance_criteria": [
+          "Malformed JSON returns 400 with JSON parse error",
+          "Wrong content type returns 415 or 400",
+          "Type mismatches return 400 with field-specific error",
+          "Non-existent resources return 404",
+          "Empty required bodies return 400",
+          "Error responses follow consistent format (e.g., {\"error\": \"...\", \"detail\": \"...\"})",
+          "No stack traces or internal paths exposed in errors"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37872",
+      "summary": "API: Validate HTTP Status Code Accuracy",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37872",
+      "description": {
+        "summary": "Validate HTTP status code accuracy for all Parts API operations (2xx, 4xx, 5xx).",
+        "general_description": "API must return semantically correct HTTP status codes for all operations: 200/201/204 for success, 400 for client errors, 404 for not found, 409 for conflicts, 500 for server errors.",
+        "business_value": "Ensures API compliance with REST standards and enables proper client-side error handling.",
+        "preconditions": [
+          "API authentication configured",
+          "Understanding of HTTP status code semantics"
+        ],
+        "scenarios": [
+          {
+            "name": "Successful resource creation",
+            "given": "valid part data",
+            "when": "a POST request creates a part",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "All operations return semantically correct status codes.",
+        "affected_areas": [
+          "All Part API endpoints",
+          "HTTP response handling"
+        ],
+        "acceptance_criteria": [
+          "200 OK for successful GET/PATCH/PUT",
+          "201 Created for successful POST (with Location header)",
+          "204 No Content for successful DELETE",
+          "400 Bad Request for validation errors",
+          "401 Unauthorized for auth failures",
+          "403 Forbidden for permission denials",
+          "404 Not Found for missing resources",
+          "405 Method Not Allowed for unsupported HTTP methods",
+          "409 Conflict for constraint violations (optional, 400 acceptable)",
+          "500 Internal Server Error for unexpected server failures"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37873",
+      "summary": "API: Validate Response Schema Consistency",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37873",
+      "description": {
+        "summary": "Validate API response schema consistency and field presence for all Parts endpoints.",
+        "general_description": "API responses must conform to documented schemas with consistent field names, data types, and structure across all endpoints.",
+        "business_value": "Ensures reliable client integration and prevents breaking changes from inconsistent response formats.",
+        "preconditions": [
+          "API authentication configured",
+          "API schema documentation available"
+        ],
+        "scenarios": [
+          {
+            "name": "Verify list response schema",
+            "given": "documented list response schema",
+            "when": "a GET request to /api/part/ is made",
+            "then": "response contains: count, next, previous, results array"
+          }
+        ],
+        "expected_result": "All responses match documented schemas consistently.",
+        "affected_areas": [
+          "All Part API endpoints",
+          "Response serialization"
+        ],
+        "acceptance_criteria": [
+          "List responses include pagination metadata",
+          "Detail responses contain all documented fields",
+          "Field names are consistent across endpoints",
+          "Data types match documentation (no string where integer expected)",
+          "Null handling is consistent (explicit null vs field omission)",
+          "Error responses follow consistent structure",
+          "Response schemas validated with JSON Schema or OpenAPI spec"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37874",
+      "summary": "API: Validate Referential Integrity on Part Deletion",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37874",
+      "description": {
+        "summary": "Validate that part deletion respects referential integrity and prevents orphaned references.",
+        "general_description": "API must prevent deletion of parts that are referenced by BOMs, stock items, purchase orders, or other entities, or cascade delete properly per business rules.",
+        "business_value": "Prevents data corruption and maintains referential integrity across inventory system.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts exist with various dependencies"
+        ],
+        "scenarios": [
+          {
+            "name": "Delete part with no dependencies",
+            "given": "a part exists with no references",
+            "when": "a DELETE request is sent",
+            "then": "the API returns 204 No Content"
+          }
+        ],
+        "expected_result": "Deletion enforces referential integrity per business rules.",
+        "affected_areas": [
+          "Part delete endpoint",
+          "Referential integrity checks",
+          "Cascade delete logic"
+        ],
+        "acceptance_criteria": [
+          "Cannot delete parts referenced in BOMs",
+          "Cannot delete parts with active stock",
+          "Cannot delete template parts with variants",
+          "Cannot delete parts with revisions",
+          "Parts with attachments/parameters can be deleted (cascade or block per config)",
+          "Error messages clearly identify blocking references",
+          "Successfully deleted parts return 204"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37875",
+      "summary": "API: Validate Part Attachment Upload and Management",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37875",
+      "description": {
+        "summary": "Validate part attachment upload, retrieval, metadata, and file type restrictions via API.",
+        "general_description": "API must support file attachment operations with proper validation of file size, type, and metadata handling.",
+        "business_value": "Enables document/image association with parts for datasheets, drawings, compliance docs.",
+        "preconditions": [
+          "API authentication configured",
+          "File upload endpoint available",
+          "File size and type restrictions defined"
+        ],
+        "scenarios": [
+          {
+            "name": "Upload valid file attachment",
+            "given": "a part exists",
+            "when": "a POST multipart/form-data request uploads a PDF file to /api/part/{id}/attachment/",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Attachment operations work with proper validation.",
+        "affected_areas": [
+          "Part attachment endpoints",
+          "File upload/storage handling"
+        ],
+        "acceptance_criteria": [
+          "Valid files upload successfully",
+          "File size limits are enforced",
+          "File type restrictions are enforced",
+          "Metadata (comment, filename) is stored and retrievable",
+          "Attachment list returns all files with metadata",
+          "Files can be downloaded with correct headers",
+          "Attachments can be deleted",
+          "Storage cleanup occurs on deletion"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37876",
+      "summary": "API: Validate Related Parts Link Management",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37876",
+      "description": {
+        "summary": "Validate related parts link creation, symmetry, and constraint enforcement via API.",
+        "general_description": "API must support creating part-to-part relationships (related/substitute/complementary) with validation to prevent self-references, duplicates, and optionally enforce bi-directional links.",
+        "business_value": "Enables tracking of part relationships for substitution, cross-selling, and compatibility.",
+        "preconditions": [
+          "API authentication configured",
+          "Multiple parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Create related part link",
+            "given": "Part A and Part B exist",
+            "when": "a POST request to /api/part/{A}/related/ links to Part B",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Related part links are validated and managed correctly.",
+        "affected_areas": [
+          "Related parts endpoints",
+          "Relationship validation logic"
+        ],
+        "acceptance_criteria": [
+          "Related part links can be created between valid parts",
+          "Self-references are blocked",
+          "Duplicate relationships are prevented",
+          "Invalid part references are rejected",
+          "Relationships can be listed and deleted",
+          "Bi-directional linking enforced if required by business rules"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37877",
+      "summary": "API: Validate Bulk/Batch Operations for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37877",
+      "description": {
+        "summary": "Validate bulk/batch operations for parts (bulk create, update, delete) via API.",
+        "general_description": "API should support bulk operations to efficiently process multiple parts in a single request, with proper error handling for partial failures.",
+        "business_value": "Enables efficient data import, migration, and batch updates without N individual API calls.",
+        "preconditions": [
+          "API authentication configured",
+          "Bulk operation endpoints available (if supported)"
+        ],
+        "scenarios": [
+          {
+            "name": "Bulk create multiple parts",
+            "given": "an authenticated API client",
+            "when": "a POST request with array of 10 part objects is sent to bulk endpoint",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Bulk operations process efficiently with clear success/failure reporting.",
+        "affected_areas": [
+          "Bulk part endpoints (if available)",
+          "Transaction handling",
+          "Error aggregation"
+        ],
+        "acceptance_criteria": [
+          "Bulk create/update/delete endpoints are available (or documented as unsupported)",
+          "Requests accept array of objects/IDs",
+          "Batch size limits are enforced",
+          "Partial failures are clearly reported",
+          "Response indicates success/failure per item",
+          "Atomic vs non-atomic behavior is documented and consistent",
+          "Performance is significantly better than N individual requests"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37878",
+      "summary": "API: Validate Test Template Assignment to Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37878",
+      "description": {
+        "summary": "Validate test template assignment and management for parts via API.",
+        "general_description": "API must support linking test templates to parts, defining test requirements, and managing test template relationships per business rules.",
+        "business_value": "Enables quality control and testing workflow integration with part definitions.",
+        "preconditions": [
+          "API authentication configured",
+          "Test templates exist in system",
+          "Parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Assign test template to part",
+            "given": "Part A exists",
+            "when": "a POST request to /api/part/{A}/test-template/ assigns the template",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Test template assignments are validated and managed.",
+        "affected_areas": [
+          "Part test template endpoints",
+          "Template validation logic"
+        ],
+        "acceptance_criteria": [
+          "Test templates can be assigned to parts",
+          "Duplicate assignments are prevented",
+          "Invalid template references are rejected",
+          "Template assignments can be listed and removed",
+          "Applicability rules are enforced (if defined)",
+          "Test template data includes required test parameters"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37879",
+      "summary": "API: Validate Part Pricing and Supplier/Manufacturer Linkage",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37879",
+      "description": {
+        "summary": "Validate part pricing and supplier/manufacturer linkage via API.",
+        "general_description": "API must support associating parts with suppliers, manufacturers, pricing data, and validate these relationships per business rules.",
+        "business_value": "Enables procurement workflows and cost tracking for inventory parts.",
+        "preconditions": [
+          "API authentication configured",
+          "Supplier/manufacturer records exist",
+          "Parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Link supplier to part",
+            "given": "Part A exists with purchaseable=true",
+            "when": "a POST request to /api/company/part/ links Supplier X to Part A with SKU",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Supplier/manufacturer links and pricing are managed correctly.",
+        "affected_areas": [
+          "Company-part relationship endpoints",
+          "Pricing endpoints",
+          "Supplier/manufacturer data"
+        ],
+        "acceptance_criteria": [
+          "Supplier/manufacturer links can be created for parts",
+          "Purchaseable flag is validated for supplier links",
+          "SKU and MPN can be stored and updated",
+          "Pricing data supports quantity breaks",
+          "Multiple suppliers per part are supported",
+          "Supplier/manufacturer lists can be retrieved per part",
+          "Links can be removed without deleting part or supplier"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37880",
+      "summary": "API: Validate Stock Location Assignment for Parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37880",
+      "description": {
+        "summary": "Validate stock location assignment and default location configuration for parts via API.",
+        "general_description": "API must support setting default stock locations for parts and validate location references for stock tracking integration.",
+        "business_value": "Streamlines stock receiving and tracking by pre-defining where parts should be stored.",
+        "preconditions": [
+          "API authentication configured",
+          "Stock locations exist",
+          "Parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Set default location for part",
+            "given": "Part A exists",
+            "when": "a PATCH request sets default_location=\"Warehouse A\" for Part A",
+            "then": "the API returns 200 OK"
+          }
+        ],
+        "expected_result": "Default locations are managed and validated correctly.",
+        "affected_areas": [
+          "Part update endpoint",
+          "Location validation logic",
+          "Stock receiving workflows"
+        ],
+        "acceptance_criteria": [
+          "Default location can be set via PATCH",
+          "Invalid location references are rejected",
+          "Default location can be cleared (set to null)",
+          "Default location is returned in part detail response",
+          "Parts can be filtered by default location",
+          "Default location does not restrict stock placement (it's a suggestion/default)"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37881",
+      "summary": "API: Validate Part Image Upload and Management",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37881",
+      "description": {
+        "summary": "Validate part image/thumbnail upload, retrieval, and primary image designation via API.",
+        "general_description": "API must support uploading images for parts, designating primary image, and serving thumbnails with proper image handling.",
+        "business_value": "Enables visual part identification and improves user experience in inventory browsing.",
+        "preconditions": [
+          "API authentication configured",
+          "Image upload endpoint available",
+          "Image file types and size limits defined"
+        ],
+        "scenarios": [
+          {
+            "name": "Upload image for part",
+            "given": "Part A exists",
+            "when": "a POST multipart request uploads PNG image to /api/part/{A}/image/",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Image upload and management work with proper validation.",
+        "affected_areas": [
+          "Part image endpoints",
+          "Image storage and processing",
+          "Thumbnail generation"
+        ],
+        "acceptance_criteria": [
+          "Image files (PNG, JPEG, GIF, WebP) can be uploaded",
+          "Non-image files are rejected",
+          "File size limits are enforced",
+          "Primary image can be designated",
+          "Images are returned with part details",
+          "Thumbnails are auto-generated and accessible",
+          "Images can be deleted with storage cleanup"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37882",
+      "summary": "API: Validate Part Notes and Metadata Management",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37882",
+      "description": {
+        "summary": "Validate part notes and metadata management via API.",
+        "general_description": "API must support adding, updating, retrieving, and deleting free-form notes and metadata fields for parts.",
+        "business_value": "Enables capturing additional context, history, and unstructured information about parts.",
+        "preconditions": [
+          "API authentication configured",
+          "Parts exist"
+        ],
+        "scenarios": [
+          {
+            "name": "Add note to part",
+            "given": "Part A exists",
+            "when": "a POST request adds note=\"Supplier changed packaging\" to /api/part/{A}/notes/",
+            "then": "the API returns 201 Created"
+          }
+        ],
+        "expected_result": "Notes and metadata are managed with proper validation.",
+        "affected_areas": [
+          "Part notes endpoints",
+          "Metadata storage"
+        ],
+        "acceptance_criteria": [
+          "Notes can be added with text, timestamp, and user attribution",
+          "All notes for a part can be retrieved",
+          "Notes can be updated and deleted",
+          "Empty notes are rejected",
+          "Custom metadata fields are supported (if applicable)",
+          "Notes include create/update timestamps"
+        ]
+      }
+    },
+    {
+      "key": "EPMCDMETST-37883",
+      "summary": "API: Validate Part Import/Export Operations",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "reporter": "Sivasankaramalan Gunasekarasivam",
+      "created": "2026-04-13",
+      "updated": "2026-04-13",
+      "url": "https://jiraeu.epam.com/browse/EPMCDMETST-37883",
+      "description": {
+        "summary": "Validate part import/export operations via API (CSV, JSON, bulk data exchange).",
+        "general_description": "API must support exporting parts data in standard formats and importing parts from external sources with validation and error reporting.",
+        "business_value": "Enables data migration, backup, integration with external systems, and bulk data management.",
+        "preconditions": [
+          "API authentication configured",
+          "Import/export endpoints or functionality available",
+          "Sample import files prepared"
+        ],
+        "scenarios": [
+          {
+            "name": "Export parts to JSON",
+            "given": "multiple parts exist",
+            "when": "a GET request to /api/part/export/?format=json is made",
+            "then": "the API returns parts data as JSON file"
+          }
+        ],
+        "expected_result": "Import/export operations work with proper validation and reporting.",
+        "affected_areas": [
+          "Import/export endpoints",
+          "File parsing and generation",
+          "Bulk validation"
+        ],
+        "acceptance_criteria": [
+          "Parts can be exported to JSON and CSV formats",
+          "Export respects filters and pagination",
+          "Parts can be imported from structured files",
+          "Import validates all records before processing (or reports per-record errors)",
+          "Duplicate and invalid records are reported clearly",
+          "Dry-run mode available for validation without commit",
+          "Import response includes success/failure summary"
+        ]
+      }
+    }
+  ]
+}

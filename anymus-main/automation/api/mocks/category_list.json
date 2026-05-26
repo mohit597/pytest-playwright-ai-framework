@@ -1,0 +1,55 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "pk": 1,
+      "name": "Electronics",
+      "description": "Electronic components",
+      "default_location": null,
+      "default_keywords": null,
+      "level": 0,
+      "parent": null,
+      "part_count": 120,
+      "subcategories": 4,
+      "pathstring": "Electronics",
+      "starred": false,
+      "structural": false,
+      "icon": "",
+      "parent_default_location": null
+    },
+    {
+      "pk": 4,
+      "name": "Passives",
+      "description": "Passive electronic components",
+      "default_location": null,
+      "default_keywords": null,
+      "level": 1,
+      "parent": 1,
+      "part_count": 80,
+      "subcategories": 3,
+      "pathstring": "Electronics/Passives",
+      "starred": false,
+      "structural": false,
+      "icon": "",
+      "parent_default_location": null
+    },
+    {
+      "pk": 5,
+      "name": "Resistors",
+      "description": "Fixed and variable resistors",
+      "default_location": null,
+      "default_keywords": null,
+      "level": 2,
+      "parent": 4,
+      "part_count": 35,
+      "subcategories": 0,
+      "pathstring": "Electronics/Passives/Resistors",
+      "starred": false,
+      "structural": false,
+      "icon": "",
+      "parent_default_location": null
+    }
+  ]
+}

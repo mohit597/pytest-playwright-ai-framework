@@ -1,0 +1,126 @@
+# ANYMUS — QA Pipeline Compose Override
+# Adds the test runner + results dashboard to the existing InvenTree network.
+#
+# Usage (from project root — assumes docker-compose.yml InvenTree stack is running):
+#   docker compose -f docker-compose.tests.yml up --build     # API-only + dashboard
+#   docker compose -f docker-compose.tests.yml run --rm anymus-tests --stage 2
+#   docker compose -f docker-compose.tests.yml run --rm anymus-tests  # full pipeline
+#
+# Or run everything in one command:
+#   docker compose -f docker-compose.yml -f docker-compose.tests.yml up --build
+#
+# Dashboard:    http://localhost:9090   (live results + AI Pulse context)
+# Allure report: http://localhost:5050  (profile: report)
+# View raw JSON: http://localhost:9090/api/data
+
+services:
+
+  anymus-tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.tests
+    container_name: anymus-tests
+    # Full pipeline: API + UI (Chromium runs headless inside the container)
+    # Override CMD so UI stages 5 & 6 are included (Dockerfile default is --api-only)
+    # Use inventree-server:8000 directly — Caddy (inventree-proxy) strips the
+    # Authorization header on GET /api/user/token/, returning an empty 200 body.
+    # Django at port 8000 serves the full API + web UI without that problem.
+    command: ["--base-url", "http://inventree-server:8000"]
+    env_file:
+      - .env.tests          # optional — override creds/URL per environment
+    environment:
+      # Playwright navigates to inventree.localhost; the browser_type_launch_args fixture
+      # in conftest.py adds --host-resolver-rules=MAP inventree.localhost inventree-proxy
+      # so Chromium reaches the proxy container instead of loopback (*.localhost → 127.0.0.1).
+      # This keeps cookies and CSRF Origin on inventree.localhost, satisfying Django.
+      INVENTREE_URL:      ${INVENTREE_URL:-http://inventree.localhost}
+      # API calls (token fetch, cleanup fixtures) go direct to Django, bypassing the proxy
+      INVENTREE_API_URL:  ${INVENTREE_API_URL:-http://inventree-server:8000}
+      INVENTREE_USER: ${INVENTREE_USER:-admin}
+      INVENTREE_PASS: ${INVENTREE_PASS:-inventree}
+      MOCK_MODE:      ${MOCK_MODE:-false}
+      # Required for Playwright headless in a container with no display server
+      DISPLAY:        ""
+    volumes:
+      # Persist Allure results + generated report on the host
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+      # UI snapshots (visual baselines survive container rebuilds)
+      - ./automation/ui/snapshots:/app/automation/ui/snapshots
+      # Run logs shared with anymus-dashboard (dashboard reads these live)
+      - ./agents/conversation-logs:/app/agents/conversation-logs
+    networks:
+      - inventree_default
+    depends_on:
+      anymus-healthwait:
+        condition: service_completed_successfully
+
+  # ── Results Dashboard ──────────────────────────────────────────────────────
+  # Serves the live QA run dashboard at http://localhost:9090.
+  # Starts immediately so you can open the browser before tests complete.
+  # Auto-refreshes every 10s — results appear as anymus-tests writes run-*.json.
+  anymus-dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: anymus-dashboard
+    ports:
+      - "9090:9090"
+    volumes:
+      # Read the same run logs that anymus-tests writes
+      - ./agents/conversation-logs:/app/agents/conversation-logs
+    networks:
+      - inventree_default
+    # Dashboard can start before tests — shows "No runs yet" until first run completes
+    depends_on:
+      anymus-healthwait:
+        condition: service_completed_successfully
+
+  # ── UI Proxy ──────────────────────────────────────────────────────────────────
+  # Chromium (Playwright) treats *.localhost as loopback (RFC 6761), so it refuses
+  # to connect to the InvenTree Caddy proxy via http://inventree.localhost.
+  # This Nginx acts as a non-localhost reverse proxy:
+  #   Playwright → http://anymus-ui → Nginx → Caddy (with Host: inventree.localhost)
+  anymus-ui:
+    image: nginx:1.25-alpine
+    container_name: anymus-ui
+    networks:
+      - inventree_default
+    volumes:
+      - ./docker/nginx.anymus-ui.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      anymus-healthwait:
+        condition: service_completed_successfully
+
+  # Lightweight one-shot container that blocks until InvenTree is ready
+  anymus-healthwait:
+    image: curlimages/curl:latest
+    container_name: anymus-healthwait
+    networks:
+      - inventree_default
+    command: >
+      sh -c "
+        echo 'Waiting for InvenTree...';
+        until curl -sf http://inventree-proxy/api/ -o /dev/null; do
+          echo '  not ready yet, retrying in 3s...';
+          sleep 3;
+        done;
+        echo 'InvenTree is up.'
+      "
+
+  # Optional: serve the Allure report on http://localhost:5050 after the run
+  allure-report:
+    image: nginx:alpine
+    container_name: anymus-allure-report
+    profiles:
+      - report            # only starts with: docker compose --profile report up
+    ports:
+      - "5050:80"
+    volumes:
+      - ./allure-report:/usr/share/nginx/html:ro
+    networks:
+      - inventree_default
+
+networks:
+  inventree_default:
+    external: true        # attaches to InvenTree's existing network

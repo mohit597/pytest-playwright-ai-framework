@@ -1,0 +1,1266 @@
+{
+  "1_parts_category_index": {
+    "buttons": [
+      {
+        "text": "",
+        "ariaLabel": "navigation-menu",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-home",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-part",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-stock",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-manufacturing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-purchasing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-sales",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-search",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-spotlight",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "barcode-scan-button-any",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-notifications",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-alerts",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "admin",
+        "ariaLabel": null,
+        "id": "mantine-yg41sdroa-target",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "nav-breadcrumb-action",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-details",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-subcategories",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-parts",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "Dashboard",
+        "href": "http://localhost:8000/web/home",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part",
+        "ariaLabel": null
+      },
+      {
+        "text": "Stock",
+        "href": "http://localhost:8000/web/stock",
+        "ariaLabel": null
+      },
+      {
+        "text": "Manufacturing",
+        "href": "http://localhost:8000/web/manufacturing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Purchasing",
+        "href": "http://localhost:8000/web/purchasing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Sales",
+        "href": "http://localhost:8000/web/sales",
+        "ariaLabel": null
+      },
+      {
+        "text": "Learn more about INVE-W14",
+        "href": "https://docs.inventree.org/en/latest/sref/error-codes/#inve-w14",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "/web/part",
+        "ariaLabel": "breadcrumb-0-parts"
+      },
+      {
+        "text": "Category Details",
+        "href": "http://localhost:8000/web/part/category/index/details/details",
+        "ariaLabel": null
+      },
+      {
+        "text": "Part Categories",
+        "href": "http://localhost:8000/web/part/category/index/details/subcategories",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part/category/index/details/parts",
+        "ariaLabel": null
+      }
+    ],
+    "tabs": [
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-home"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-part"
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-stock"
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-manufacturing"
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-purchasing"
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-sales"
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-details"
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-subcategories"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-nnzkcufmv-tab-parts"
+      }
+    ],
+    "roles": []
+  },
+  "2_create_part_modal": {
+    "buttons": [
+      {
+        "text": "",
+        "ariaLabel": "navigation-menu",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-home",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-part",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-stock",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-manufacturing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-purchasing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-sales",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-search",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-spotlight",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "barcode-scan-button-any",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-notifications",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-alerts",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "admin",
+        "ariaLabel": null,
+        "id": "mantine-yg41sdroa-target",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "nav-breadcrumb-action",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-details",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-subcategories",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-parts",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "Dashboard",
+        "href": "http://localhost:8000/web/home",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part",
+        "ariaLabel": null
+      },
+      {
+        "text": "Stock",
+        "href": "http://localhost:8000/web/stock",
+        "ariaLabel": null
+      },
+      {
+        "text": "Manufacturing",
+        "href": "http://localhost:8000/web/manufacturing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Purchasing",
+        "href": "http://localhost:8000/web/purchasing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Sales",
+        "href": "http://localhost:8000/web/sales",
+        "ariaLabel": null
+      },
+      {
+        "text": "Learn more about INVE-W14",
+        "href": "https://docs.inventree.org/en/latest/sref/error-codes/#inve-w14",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "/web/part",
+        "ariaLabel": "breadcrumb-0-parts"
+      },
+      {
+        "text": "Category Details",
+        "href": "http://localhost:8000/web/part/category/index/details/details",
+        "ariaLabel": null
+      },
+      {
+        "text": "Part Categories",
+        "href": "http://localhost:8000/web/part/category/index/details/subcategories",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part/category/index/details/parts",
+        "ariaLabel": null
+      }
+    ],
+    "tabs": [
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-home"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-part"
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-stock"
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-manufacturing"
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-purchasing"
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-7lry2kc1q-tab-sales"
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-details"
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-subcategories"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-pbci65m0t-tab-parts"
+      }
+    ],
+    "roles": []
+  },
+  "3_part_detail_page": {
+    "buttons": [
+      {
+        "text": "",
+        "ariaLabel": "navigation-menu",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-home",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-part",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-stock",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-manufacturing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-purchasing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-sales",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-search",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-spotlight",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "barcode-scan-button-any",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-notifications",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-alerts",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "admin",
+        "ariaLabel": null,
+        "id": "mantine-nx1kn329d-target",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "nav-breadcrumb-action",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-button-open-in-admin-interface",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-button-subscribe-to-notifications",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-menu-barcode-actions",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-menu-printing-actions",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-menu-stock-actions",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "action-menu-part-actions",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Part Details",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-details",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-stock",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Allocations",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-allocations",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Used In",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-used_in",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Part Pricing",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-pricing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Suppliers",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-suppliers",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Purchase Orders",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-purchase_orders",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Related Parts",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-related_parts",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parameters",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-parameters",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Attachments",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-attachments",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Notes",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-notes",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "Dashboard",
+        "href": "http://localhost:8000/web/home",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part",
+        "ariaLabel": null
+      },
+      {
+        "text": "Stock",
+        "href": "http://localhost:8000/web/stock",
+        "ariaLabel": null
+      },
+      {
+        "text": "Manufacturing",
+        "href": "http://localhost:8000/web/manufacturing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Purchasing",
+        "href": "http://localhost:8000/web/purchasing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Sales",
+        "href": "http://localhost:8000/web/sales",
+        "ariaLabel": null
+      },
+      {
+        "text": "Learn more about INVE-W14",
+        "href": "https://docs.inventree.org/en/latest/sref/error-codes/#inve-w14",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "/web/part",
+        "ariaLabel": "breadcrumb-0-parts"
+      },
+      {
+        "text": "Part Details",
+        "href": "http://localhost:8000/web/part/1/details/details",
+        "ariaLabel": null
+      },
+      {
+        "text": "Stock",
+        "href": "http://localhost:8000/web/part/1/details/stock",
+        "ariaLabel": null
+      },
+      {
+        "text": "Allocations",
+        "href": "http://localhost:8000/web/part/1/details/allocations",
+        "ariaLabel": null
+      },
+      {
+        "text": "Used In",
+        "href": "http://localhost:8000/web/part/1/details/used_in",
+        "ariaLabel": null
+      },
+      {
+        "text": "Part Pricing",
+        "href": "http://localhost:8000/web/part/1/details/pricing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Suppliers",
+        "href": "http://localhost:8000/web/part/1/details/suppliers",
+        "ariaLabel": null
+      },
+      {
+        "text": "Purchase Orders",
+        "href": "http://localhost:8000/web/part/1/details/purchase_orders",
+        "ariaLabel": null
+      },
+      {
+        "text": "Related Parts",
+        "href": "http://localhost:8000/web/part/1/details/related_parts",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parameters",
+        "href": "http://localhost:8000/web/part/1/details/parameters",
+        "ariaLabel": null
+      },
+      {
+        "text": "Attachments",
+        "href": "http://localhost:8000/web/part/1/details/attachments",
+        "ariaLabel": null
+      },
+      {
+        "text": "Notes",
+        "href": "http://localhost:8000/web/part/1/details/notes",
+        "ariaLabel": null
+      }
+    ],
+    "tabs": [
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-home"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-part"
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-stock"
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-manufacturing"
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-purchasing"
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-kojo5gq18-tab-sales"
+      },
+      {
+        "text": "Part Details",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-details"
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-stock"
+      },
+      {
+        "text": "Allocations",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-allocations"
+      },
+      {
+        "text": "Used In",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-used_in"
+      },
+      {
+        "text": "Part Pricing",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-pricing"
+      },
+      {
+        "text": "Suppliers",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-suppliers"
+      },
+      {
+        "text": "Purchase Orders",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-purchase_orders"
+      },
+      {
+        "text": "Related Parts",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-related_parts"
+      },
+      {
+        "text": "Parameters",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-parameters"
+      },
+      {
+        "text": "Attachments",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-attachments"
+      },
+      {
+        "text": "Notes",
+        "ariaLabel": null,
+        "id": "mantine-pvcr1xm1s-tab-notes"
+      }
+    ],
+    "roles": []
+  },
+  "4_create_category_modal": {
+    "buttons": [
+      {
+        "text": "",
+        "ariaLabel": "navigation-menu",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-home",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-part",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-stock",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-manufacturing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-purchasing",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-sales",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-search",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-spotlight",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "barcode-scan-button-any",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-notifications",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "open-alerts",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "admin",
+        "ariaLabel": null,
+        "id": "mantine-pkbhorn1r-target",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": "nav-breadcrumb-action",
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-details",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-subcategories",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-parts",
+        "type": "button",
+        "role": "tab",
+        "dataTestid": null
+      },
+      {
+        "text": "",
+        "ariaLabel": null,
+        "id": "",
+        "type": "button",
+        "role": null,
+        "dataTestid": null
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "Dashboard",
+        "href": "http://localhost:8000/web/home",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part",
+        "ariaLabel": null
+      },
+      {
+        "text": "Stock",
+        "href": "http://localhost:8000/web/stock",
+        "ariaLabel": null
+      },
+      {
+        "text": "Manufacturing",
+        "href": "http://localhost:8000/web/manufacturing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Purchasing",
+        "href": "http://localhost:8000/web/purchasing",
+        "ariaLabel": null
+      },
+      {
+        "text": "Sales",
+        "href": "http://localhost:8000/web/sales",
+        "ariaLabel": null
+      },
+      {
+        "text": "Learn more about INVE-W14",
+        "href": "https://docs.inventree.org/en/latest/sref/error-codes/#inve-w14",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "/web/part",
+        "ariaLabel": "breadcrumb-0-parts"
+      },
+      {
+        "text": "Category Details",
+        "href": "http://localhost:8000/web/part/category/index/details/details",
+        "ariaLabel": null
+      },
+      {
+        "text": "Part Categories",
+        "href": "http://localhost:8000/web/part/category/index/details/subcategories",
+        "ariaLabel": null
+      },
+      {
+        "text": "Parts",
+        "href": "http://localhost:8000/web/part/category/index/details/parts",
+        "ariaLabel": null
+      }
+    ],
+    "tabs": [
+      {
+        "text": "Dashboard",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-home"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-part"
+      },
+      {
+        "text": "Stock",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-stock"
+      },
+      {
+        "text": "Manufacturing",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-manufacturing"
+      },
+      {
+        "text": "Purchasing",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-purchasing"
+      },
+      {
+        "text": "Sales",
+        "ariaLabel": null,
+        "id": "mantine-cih9dpa4p-tab-sales"
+      },
+      {
+        "text": "Category Details",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-details"
+      },
+      {
+        "text": "Part Categories",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-subcategories"
+      },
+      {
+        "text": "Parts",
+        "ariaLabel": null,
+        "id": "mantine-n8cbl0wfb-tab-parts"
+      }
+    ],
+    "roles": []
+  }
+}

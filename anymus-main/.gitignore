@@ -1,0 +1,65 @@
+# Environment
+.env
+*.env.local
+.env.tests
+
+# Allure
+allure-results/
+allure-report/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+venv/
+.venv/
+env/
+
+# Pytest reports
+report.html
+assets/
+test-results/
+
+# Playwright
+automation/ui/snapshots/**/*.png-diff
+automation/ui/snapshots/**/*.png-actual
+/test-results/
+/playwright-report/
+
+# Health check output
+health_report.json
+
+# Claude Code — commit settings.json and hooks, but not personal overrides
+.claude/settings.local.json
+.claude/__pycache__/
+.claude/hooks/__pycache__/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Node (if any tooling is added)
+node_modules/
+package-lock.json
+
+# Hypothesis / schemathesis generated test data
+.hypothesis/
+
+# Agent run logs (keep .gitkeep, ignore generated reports)
+agents/conversation-logs/*.json
+agents/conversation-logs/*.md

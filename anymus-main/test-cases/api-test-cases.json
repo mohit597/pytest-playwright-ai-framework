@@ -1,0 +1,1052 @@
+{
+  "project": "ANYMUS — InvenTree Parts API",
+  "generated": "2026-04-14",
+  "total_curated": 54,
+  "selection_criteria": "High-priority, non-duplicate, automation-ready. Excludes 37840/37841/37842/37850/37851/37853/37866-37868/37870/37872/37873 which are fully covered by existing test files.",
+  "automation_target": "pytest + requests",
+  "next_available_test_id": "API-P-081",
+  "test_cases": [
+
+    {
+      "tc_id": "API-P-081",
+      "story": "EPMCDMETST-37843",
+      "title": "Add parameter to part successfully",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/parameter/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part", "parameter_template"],
+      "payload": {"template": "{template_pk}", "data": "220V"},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"pk\"] > 0",
+        "\"data\" in response.json()",
+        "response.json()[\"data\"] == \"220V\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-082",
+      "story": "EPMCDMETST-37843",
+      "title": "List parameters for a part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/parameter/",
+      "method": "GET",
+      "fixtures": ["api_client", "created_part_with_parameter"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "isinstance(response.json(), list)",
+        "len(response.json()) >= 1",
+        "\"template\" in response.json()[0]",
+        "\"data\" in response.json()[0]"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-083",
+      "story": "EPMCDMETST-37843",
+      "title": "Update parameter value",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/parameter/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_part_parameter"],
+      "payload": {"data": "240V"},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"data\"] == \"240V\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-084",
+      "story": "EPMCDMETST-37843",
+      "title": "Delete parameter from part",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/parameter/{pk}/",
+      "method": "DELETE",
+      "fixtures": ["api_client", "created_part_parameter"],
+      "payload": null,
+      "expected_status": 204,
+      "assertions": [
+        "GET /api/part/parameter/{pk}/ returns 404 after delete"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-085",
+      "story": "EPMCDMETST-37843",
+      "title": "Error on duplicate parameter template for same part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/parameter/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part_with_parameter"],
+      "payload": {"part": "{part_pk}", "template": "{same_template_pk}", "data": "999"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "any duplicate-related key in response.json()"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-086",
+      "story": "EPMCDMETST-37844",
+      "title": "Create variant of a template part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_templates.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_template_part"],
+      "payload": {"name": "ANYMUS Variant A", "variant_of": "{template_pk}", "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"variant_of\"] == template_pk",
+        "response.json()[\"is_template\"] == False"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-087",
+      "story": "EPMCDMETST-37844",
+      "title": "Error creating variant of non-template part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_templates.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"name": "ANYMUS Bad Variant", "variant_of": "{non_template_pk}", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"variant_of\" in response.json() or \"error\" in response.json()"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-088",
+      "story": "EPMCDMETST-37844",
+      "title": "Error on variant-of-variant chaining",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_templates.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_variant_part"],
+      "payload": {"name": "ANYMUS Meta Variant", "variant_of": "{variant_pk}", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-089",
+      "story": "EPMCDMETST-37844",
+      "title": "Error removing template flag when variants exist",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_templates.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_template_part_with_variant"],
+      "payload": {"is_template": false},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "template_pk still has is_template=true on GET"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-090",
+      "story": "EPMCDMETST-37845",
+      "title": "Create revision of a template part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_template_part"],
+      "payload": {"name": "ANYMUS Rev B", "revision_of": "{template_pk}", "revision": "B", "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"revision_of\"] == template_pk",
+        "response.json()[\"revision\"] == \"B\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-091",
+      "story": "EPMCDMETST-37857",
+      "title": "Error on revision-of-revision (second level)",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_revision_part"],
+      "payload": {"name": "ANYMUS Rev C", "revision_of": "{revision_pk}", "revision": "C", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-092",
+      "story": "EPMCDMETST-37857",
+      "title": "Error on self-referencing revision",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"revision_of": "{same_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-093",
+      "story": "EPMCDMETST-37857",
+      "title": "Error on direct circular revision reference (A→B then B→A)",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "two_parts_with_revision_a_to_b"],
+      "payload": {"revision_of": "{part_a_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "circular reference error in body"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-094",
+      "story": "EPMCDMETST-37858",
+      "title": "Error on duplicate revision code within same part family",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "template_with_revision_B"],
+      "payload": {"name": "ANYMUS Rev Dup", "revision_of": "{template_pk}", "revision": "B", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "revision or duplicate error in body"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-095",
+      "story": "EPMCDMETST-37858",
+      "title": "Same revision code allowed in different part families",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "two_independent_templates"],
+      "payload": {"name": "ANYMUS Rev B-X", "revision_of": "{other_template_pk}", "revision": "B", "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.status_code == 201",
+        "response.json()[\"revision\"] == \"B\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-096",
+      "story": "EPMCDMETST-37859",
+      "title": "Error creating revision of non-template part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"name": "ANYMUS Rev Fail", "revision_of": "{non_template_pk}", "revision": "A", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"revision_of\" in response.json() or error mentions template"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-097",
+      "story": "EPMCDMETST-37859",
+      "title": "Error removing template flag when revisions exist",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_revisions.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "template_with_revisions"],
+      "payload": {"is_template": false},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-098",
+      "story": "EPMCDMETST-37846",
+      "title": "Add BOM item to assembly part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_assembly_part", "created_component_part"],
+      "payload": {"part": "{assembly_pk}", "sub_part": "{component_pk}", "quantity": 5.0},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"part\"] == assembly_pk",
+        "response.json()[\"sub_part\"] == component_pk",
+        "response.json()[\"quantity\"] == 5.0"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-099",
+      "story": "EPMCDMETST-37846",
+      "title": "Retrieve BOM list for assembly",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/?part={assembly_pk}",
+      "method": "GET",
+      "fixtures": ["api_client", "assembly_with_bom_items"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"count\"] >= 1",
+        "all items have sub_part, quantity fields"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-100",
+      "story": "EPMCDMETST-37864",
+      "title": "Error adding BOM item to non-assembly part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"part": "{non_assembly_pk}", "sub_part": "{component_pk}", "quantity": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "error mentions assembly or BOM restriction"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-101",
+      "story": "EPMCDMETST-37864",
+      "title": "Error on duplicate BOM entry (same sub_part)",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/",
+      "method": "POST",
+      "fixtures": ["api_client", "assembly_with_bom_items"],
+      "payload": {"part": "{assembly_pk}", "sub_part": "{already_added_component_pk}", "quantity": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-102",
+      "story": "EPMCDMETST-37864",
+      "title": "Error on BOM item with zero or negative quantity",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_assembly_part", "created_component_part"],
+      "payload": {"part": "{assembly_pk}", "sub_part": "{component_pk}", "quantity": 0},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"quantity\" in response.json()"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-103",
+      "story": "EPMCDMETST-37864",
+      "title": "Update BOM item quantity",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/bom/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_bom_item"],
+      "payload": {"quantity": 10.0},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"quantity\"] == 10.0"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-104",
+      "story": "EPMCDMETST-37847",
+      "title": "Upload attachment to part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_attachments.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/attachments/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part", "test_pdf_fixture"],
+      "payload": "multipart/form-data — attachment field with PDF file",
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"pk\"] > 0",
+        "\"attachment\" in response.json()",
+        "response.json()[\"part\"] == part_pk"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-105",
+      "story": "EPMCDMETST-37847",
+      "title": "List attachments for part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_attachments.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/attachments/",
+      "method": "GET",
+      "fixtures": ["api_client", "part_with_attachment"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "isinstance(response.json(), list) or count in response.json()",
+        "attachment url present in results"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-106",
+      "story": "EPMCDMETST-37847",
+      "title": "Delete attachment",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_attachments.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/attachments/{attachment_pk}/",
+      "method": "DELETE",
+      "fixtures": ["api_client", "part_with_attachment"],
+      "payload": null,
+      "expected_status": 204,
+      "assertions": [
+        "GET after delete returns 404 or attachment absent from list"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-107",
+      "story": "EPMCDMETST-37848",
+      "title": "Create related part link",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_related.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/related/",
+      "method": "POST",
+      "fixtures": ["api_client", "two_parts"],
+      "payload": {"part_1": "{part_a_pk}", "part_2": "{part_b_pk}"},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"pk\"] > 0",
+        "response.json()[\"part_1\"] == part_a_pk",
+        "response.json()[\"part_2\"] == part_b_pk"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-108",
+      "story": "EPMCDMETST-37848",
+      "title": "Error on self-referencing related part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_related.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/related/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"part_1": "{part_pk}", "part_2": "{part_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-109",
+      "story": "EPMCDMETST-37848",
+      "title": "Error on duplicate related part link",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_related.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/related/",
+      "method": "POST",
+      "fixtures": ["api_client", "parts_already_related"],
+      "payload": {"part_1": "{part_a_pk}", "part_2": "{part_b_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-110",
+      "story": "EPMCDMETST-37854",
+      "title": "Error on duplicate IPN when creating part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "part_with_ipn_ABC123"],
+      "payload": {"name": "ANYMUS IPN Dup", "IPN": "ABC-123", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"IPN\" in response.json() or duplicate error present"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-111",
+      "story": "EPMCDMETST-37854",
+      "title": "Error updating part to duplicate IPN",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "two_parts_with_different_ipns"],
+      "payload": {"IPN": "{first_part_ipn}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"IPN\" in response.json()"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-112",
+      "story": "EPMCDMETST-37854",
+      "title": "Multiple parts with null IPN allowed",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "part_with_null_ipn"],
+      "payload": {"name": "ANYMUS No IPN 2", "IPN": null, "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.status_code == 201",
+        "response.json()[\"IPN\"] is None or response.json()[\"IPN\"] == \"\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-113",
+      "story": "EPMCDMETST-37860",
+      "title": "Inactive part is still retrievable via GET",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "GET",
+      "fixtures": ["api_client", "inactive_part"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "response.status_code == 200",
+        "response.json()[\"active\"] == False"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-114",
+      "story": "EPMCDMETST-37860",
+      "title": "active=true filter excludes inactive parts",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_filtering.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/?active=true",
+      "method": "GET",
+      "fixtures": ["api_client", "inactive_part"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "all(p[\"active\"] == True for p in response.json()[\"results\"])",
+        "inactive part pk NOT in results"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-115",
+      "story": "EPMCDMETST-37862",
+      "title": "Error on direct circular parent reference in category",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/category/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "parent_child_categories"],
+      "payload": {"parent": "{child_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "circular or invalid reference error"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-116",
+      "story": "EPMCDMETST-37862",
+      "title": "Error on indirect circular category reference (A→B→C→A)",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/category/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "a_b_c_category_chain"],
+      "payload": {"parent": "{deepest_child_pk}"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-117",
+      "story": "EPMCDMETST-37861",
+      "title": "Error deleting category that has child categories",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/category/{pk}/",
+      "method": "DELETE",
+      "fixtures": ["api_client", "parent_category_with_children"],
+      "payload": null,
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code in (400, 409)",
+        "children or dependency error in body"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-118",
+      "story": "EPMCDMETST-37863",
+      "title": "Error on variant-of-non-template part",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_templates.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"name": "ANYMUS Bad Variant", "variant_of": "{non_template_pk}", "category": 1},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-119",
+      "story": "EPMCDMETST-37865",
+      "title": "Create part parameter template",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/parameter/template/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": {"name": "ANYMUS Voltage", "units": "V"},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"pk\"] > 0",
+        "response.json()[\"name\"] == \"ANYMUS Voltage\"",
+        "response.json()[\"units\"] == \"V\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-120",
+      "story": "EPMCDMETST-37869",
+      "title": "Sort parts by name ascending",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_filtering.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/?ordering=name",
+      "method": "GET",
+      "fixtures": ["api_client"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "names = [p['name'] for p in response.json()['results']]",
+        "names == sorted(names, key=str.lower)"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-121",
+      "story": "EPMCDMETST-37869",
+      "title": "Sort parts by name descending",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_filtering.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/?ordering=-name",
+      "method": "GET",
+      "fixtures": ["api_client"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "names = [p['name'] for p in response.json()['results']]",
+        "names == sorted(names, key=str.lower, reverse=True)"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-122",
+      "story": "EPMCDMETST-37874",
+      "title": "Error deleting part that is referenced in a BOM",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_bom.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "DELETE",
+      "fixtures": ["api_client", "part_used_in_bom"],
+      "payload": null,
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "reference or dependency error in body"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-123",
+      "story": "EPMCDMETST-37882",
+      "title": "Add note to part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_notes.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"notes": "ANYMUS test note content"},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"notes\"] == \"ANYMUS test note content\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-124",
+      "story": "EPMCDMETST-37882",
+      "title": "Clear notes field (set to empty string)",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_notes.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "part_with_notes"],
+      "payload": {"notes": ""},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"notes\"] == \"\" or response.json()[\"notes\"] is None"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-125",
+      "story": "EPMCDMETST-37855",
+      "title": "Set multiple boolean attribute flags together",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"active": true, "purchaseable": true, "salable": true, "trackable": true},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"purchaseable\"] == True",
+        "response.json()[\"salable\"] == True",
+        "response.json()[\"trackable\"] == True"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-126",
+      "story": "EPMCDMETST-37855",
+      "title": "Set virtual flag — verify component flag interaction",
+      "priority": "Medium",
+      "type": "Boundary",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PATCH",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"virtual": true},
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"virtual\"] == True",
+        "note: document if trackable/purchaseable auto-reset"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-127",
+      "story": "EPMCDMETST-37856",
+      "title": "Set valid unit of measure on part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": {"name": "ANYMUS Units Part", "units": "pcs", "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"units\"] == \"pcs\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-128",
+      "story": "EPMCDMETST-37852",
+      "title": "Nullable field accepts null value",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": {"name": "ANYMUS Null Desc", "description": null, "category": 1},
+      "expected_status": 201,
+      "assertions": [
+        "response.json()[\"description\"] is None or response.json()[\"description\"] == \"\""
+      ]
+    },
+
+    {
+      "tc_id": "API-P-129",
+      "story": "EPMCDMETST-37871",
+      "title": "Error on malformed JSON body",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": "raw_string: '{\"name\": \"unclosed'",
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "parse or syntax error in body"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-130",
+      "story": "EPMCDMETST-37871",
+      "title": "Error on wrong field type (string for integer FK)",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": {"name": "ANYMUS Bad Type", "category": "not-an-integer"},
+      "expected_status": 400,
+      "assertions": [
+        "response.status_code == 400",
+        "\"category\" in response.json()"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-131",
+      "story": "EPMCDMETST-37877",
+      "title": "Verify bulk create if endpoint available",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_bulk.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/",
+      "method": "POST",
+      "fixtures": ["api_client"],
+      "payload": "[{\"name\": \"ANYMUS Bulk 1\", \"category\": 1}, {\"name\": \"ANYMUS Bulk 2\", \"category\": 1}]",
+      "expected_status": 201,
+      "assertions": [
+        "response.status_code in (201, 400, 405) — document actual behavior",
+        "if 201: all parts created"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-132",
+      "story": "EPMCDMETST-37866",
+      "title": "Verify empty page beyond data range returns empty results",
+      "priority": "Medium",
+      "type": "Boundary",
+      "automation_file": "test_part_filtering.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/?offset=999999&limit=10",
+      "method": "GET",
+      "fixtures": ["api_client"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "response.json()[\"results\"] == []",
+        "response.json()[\"count\"] >= 0"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-133",
+      "story": "EPMCDMETST-37872",
+      "title": "Verify 405 on unsupported HTTP method",
+      "priority": "Medium",
+      "type": "Negative",
+      "automation_file": "test_part_validation.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/{pk}/",
+      "method": "PUT",
+      "fixtures": ["api_client", "created_part"],
+      "payload": {"name": "Should Fail"},
+      "expected_status": 405,
+      "assertions": [
+        "response.status_code == 405 or 400",
+        "Method Not Allowed message"
+      ]
+    },
+
+    {
+      "tc_id": "API-P-134",
+      "story": "EPMCDMETST-37867",
+      "title": "Search term matching IPN returns correct part",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_filtering.py",
+      "automation_status": "New",
+      "endpoint": "/api/part/?search={IPN}",
+      "method": "GET",
+      "fixtures": ["api_client", "part_with_known_ipn"],
+      "payload": null,
+      "expected_status": 200,
+      "assertions": [
+        "any(p['IPN'] == known_ipn for p in response.json()['results'])"
+      ]
+    }
+
+  ],
+
+  "already_automated": [
+    {"story": "EPMCDMETST-37840", "test_ids": "API-P-001 to API-P-020", "file": "test_part_crud.py"},
+    {"story": "EPMCDMETST-37841", "test_ids": "API-P-021 to API-P-035", "file": "test_part_filtering.py"},
+    {"story": "EPMCDMETST-37842", "test_ids": "API-P-061 to API-P-074", "file": "test_part_categories.py"},
+    {"story": "EPMCDMETST-37850", "test_ids": "API-P-041 to API-P-044", "file": "test_part_validation.py"},
+    {"story": "EPMCDMETST-37851", "test_ids": "API-P-045", "file": "test_part_validation.py"},
+    {"story": "EPMCDMETST-37853", "test_ids": "API-P-050 to API-P-052", "file": "test_part_validation.py"},
+    {"story": "EPMCDMETST-37870", "test_ids": "API-P-053 to API-P-056", "file": "test_part_validation.py"},
+    {"story": "EPMCDMETST-37873", "test_ids": "contract tests", "file": "test_schema_contract.py"},
+    {"story": "EPMCDMETST-37868", "test_ids": "API-P-026 to API-P-029", "file": "test_part_filtering.py"},
+    {"story": "EPMCDMETST-37866", "test_ids": "API-P-030 to API-P-035", "file": "test_part_filtering.py"},
+    {"story": "EPMCDMETST-37867", "test_ids": "API-P-021 to API-P-025", "file": "test_part_filtering.py"}
+  ],
+
+  "new_automation_files_needed": [
+    "test_part_parameters.py",
+    "test_part_templates.py",
+    "test_part_revisions.py",
+    "test_part_bom.py",
+    "test_part_attachments.py",
+    "test_part_related.py",
+    "test_part_notes.py",
+    "test_part_bulk.py"
+  ]
+}

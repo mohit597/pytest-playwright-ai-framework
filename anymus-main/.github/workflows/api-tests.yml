@@ -1,0 +1,74 @@
+name: API Tests — InvenTree Parts Module
+
+on:
+  push:
+    branches: [mohit/api, main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+
+    env:
+      INVENTREE_URL: http://localhost:8000
+      INVENTREE_USER: admin
+      INVENTREE_PASS: inventree
+      MOCK_MODE: "false"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install health check dependencies
+        run: pip install requests colorama tabulate
+
+      - name: Start InvenTree via Docker Compose
+        run: |
+          docker compose up -d
+          echo "Waiting for InvenTree to be ready..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8000/api/ > /dev/null 2>&1; do sleep 3; done'
+          echo "InvenTree is ready."
+
+      - name: D3 — Step 1: Pre-flight API health check
+        run: python scripts/health_check.py --base-url http://localhost:8000
+        continue-on-error: false
+
+      - name: Upload health report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: health-report
+          path: health_report.json
+          retention-days: 7
+
+      - name: Install API test dependencies
+        working-directory: automation/api
+        run: pip install -r requirements.txt
+
+      - name: Run API test suite (live mode)
+        working-directory: automation/api
+        run: pytest tests/ -v --html=report.html --self-contained-html
+        continue-on-error: true
+
+      - name: Run Mock API tests (D2)
+        working-directory: automation/api
+        env:
+          MOCK_MODE: "true"
+        run: pytest tests/test_part_mock.py -v -m mock --html=mock-report.html --self-contained-html
+        continue-on-error: true
+
+      - name: Upload API test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-reports
+          path: |
+            automation/api/report.html
+            automation/api/mock-report.html
+          retention-days: 7

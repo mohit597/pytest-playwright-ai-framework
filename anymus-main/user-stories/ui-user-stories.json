@@ -1,0 +1,639 @@
+{
+  "project": "ANYMUS — InvenTree Parts UI",
+  "module": "InvenTree Parts Module — Web (Playwright)",
+  "generated": "2026-04-14",
+  "generated_by": "Claude Code (CodemIE) — agentic ingestion of automated test files",
+  "scope": "Automated UI tests only — 32 tests across 6 test files",
+  "automation_target": "pytest + playwright",
+  "test_id_prefix": "UI-P / VIS-P",
+  "total_stories": 24,
+  "stories": [
+
+    {
+      "key": "US-UI-001",
+      "summary": "Create a part with required fields only",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-001"],
+      "description": {
+        "summary": "Enable a warehouse manager to register a new part by entering only the mandatory name and description via the InvenTree web UI.",
+        "general_description": "The Part creation form must accept a submission containing only the two required fields (name and description). On success the modal closes, the new part appears in the parts list, and the part detail page correctly reflects the entered values.",
+        "business_value": "Reduces friction for rapid inventory entry; testers and warehouse staff can register components without filling optional metadata.",
+        "preconditions": [
+          "InvenTree is running and accessible at INVENTREE_URL",
+          "Admin user is authenticated",
+          "Browser is at the Parts category page (/web/part/category/index/parts)"
+        ],
+        "scenarios": [
+          {
+            "name": "Create part — happy path",
+            "given": "an authenticated user on the Parts list page",
+            "when": "the user opens the Add Part menu, enters a name and description, and clicks Submit",
+            "then": "the modal closes, the part appears in the list, and the part detail page shows the correct name"
+          }
+        ],
+        "acceptance_criteria": [
+          "Form accepts name + description with no other fields filled",
+          "Part appears in parts list immediately after creation",
+          "Part detail page shows the exact name entered",
+          "Part is accessible via API GET /api/part/{pk}/"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-002",
+      "summary": "Create a part with an Internal Part Number (IPN)",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-002"],
+      "description": {
+        "summary": "Allow a procurement manager to assign an IPN to a new part at creation time.",
+        "general_description": "The IPN (Internal Part Number) is an optional unique identifier. When provided at creation the value must be stored and displayed on the part detail page.",
+        "business_value": "Supports internal numbering schemes required by procurement and ERP integration workflows.",
+        "preconditions": [
+          "InvenTree is running",
+          "Admin user is authenticated",
+          "No existing part with the same IPN"
+        ],
+        "scenarios": [
+          {
+            "name": "Create part with IPN",
+            "given": "an authenticated user on the Parts list page",
+            "when": "the user fills name, description, and IPN then submits",
+            "then": "the part is created and the IPN is visible on the part detail page"
+          }
+        ],
+        "acceptance_criteria": [
+          "IPN field accepts alphanumeric values",
+          "Created part appears in the parts list",
+          "Part detail page displays the IPN value"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-003",
+      "summary": "Duplicate an existing part via the action menu",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-003"],
+      "description": {
+        "summary": "Allow a parts librarian to create a copy of an existing part with a new name via the detail page action menu.",
+        "general_description": "The Duplicate Part action pre-fills all fields from the source part. The user can rename before saving. The result is a new independent part record.",
+        "business_value": "Reduces data-entry time when creating similar parts; avoids re-typing shared specifications.",
+        "preconditions": [
+          "At least one part exists in InvenTree",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          {
+            "name": "Duplicate part and rename",
+            "given": "an authenticated user on a part detail page",
+            "when": "the user selects Duplicate from the actions menu, changes the name, and submits",
+            "then": "a new part with the given name is created and findable via API"
+          }
+        ],
+        "acceptance_criteria": [
+          "Duplicate option is available in the part actions menu (action-menu-part-actions-duplicate)",
+          "Pre-filled modal allows renaming",
+          "New part is created and findable via API with the new name",
+          "Original part is unchanged"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-004",
+      "summary": "Validation error shown when part name is missing",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-004"],
+      "description": {
+        "summary": "Prevent creation of unnamed parts by showing an inline validation error when the Name field is left empty.",
+        "general_description": "Name is mandatory. Submitting the create part form without a name must trigger a field-level validation error. The form must remain open and no part record must be created.",
+        "business_value": "Data quality — every part in the inventory must have a human-readable name.",
+        "preconditions": [
+          "Admin user is authenticated",
+          "Part creation modal is open"
+        ],
+        "scenarios": [
+          {
+            "name": "Submit form without name",
+            "given": "an open Part creation modal",
+            "when": "the user fills description but leaves name empty and clicks Submit",
+            "then": "an inline validation error appears on the Name field and the modal stays open"
+          }
+        ],
+        "acceptance_criteria": [
+          "Name field shows inline error on submit-without-name",
+          "Modal remains open after invalid submission",
+          "No part record is created (API returns 0 results for an empty search)"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-005",
+      "summary": "Validation error shown for duplicate IPN",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-005"],
+      "description": {
+        "summary": "Prevent duplicate IPN values by rejecting a creation form that specifies an IPN already assigned to another part.",
+        "general_description": "IPN uniqueness is a system constraint. When a user enters an IPN that is already in use, the form must show an error and must not create a second part with the same IPN.",
+        "business_value": "Maintains IPN uniqueness, which is essential for integration with ERP and procurement systems.",
+        "preconditions": [
+          "A part with IPN 'DUP-IPN-005' already exists",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          {
+            "name": "Submit form with duplicate IPN",
+            "given": "a part with IPN 'DUP-IPN-005' already exists",
+            "when": "the user creates another part with the same IPN",
+            "then": "an error is shown on the IPN field and no new part is created"
+          }
+        ],
+        "acceptance_criteria": [
+          "IPN field shows an error when a duplicate is submitted",
+          "Modal stays open",
+          "Only the original part with that IPN exists after the attempt"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-006-007",
+      "summary": "Part name length boundary — 100 chars accepted, 101 rejected",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-006", "UI-P-007"],
+      "description": {
+        "summary": "Enforce the 100-character maximum name length: a 100-character name must be accepted and a 101-character name must be rejected with a validation error.",
+        "general_description": "The InvenTree API enforces a 100-character name limit. The UI must reflect this constraint with appropriate feedback.",
+        "business_value": "Prevents oversized data from causing API/database errors and enforces consistent part naming.",
+        "preconditions": ["Admin user is authenticated"],
+        "scenarios": [
+          {
+            "name": "100-char name accepted",
+            "given": "part creation modal is open",
+            "when": "user enters exactly 100 characters as the name and submits",
+            "then": "part is created successfully and appears in the list"
+          },
+          {
+            "name": "101-char name rejected",
+            "given": "part creation modal is open",
+            "when": "user enters 101 characters as the name and submits",
+            "then": "validation error is shown and no part is created"
+          }
+        ],
+        "acceptance_criteria": [
+          "100-character name: form submits successfully, part appears in list",
+          "101-character name: inline validation error shown, modal stays open"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-008",
+      "summary": "Create a part assigned to a category",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-008"],
+      "description": {
+        "summary": "Allow a parts librarian to assign a new part to an existing category during creation using the category dropdown.",
+        "general_description": "The category dropdown (react-select) on the create part modal accepts an existing category name. The part should be findable under that category after creation.",
+        "business_value": "Ensures parts are correctly organised into the hierarchy from the start, avoiding orphaned parts.",
+        "preconditions": [
+          "A category named 'UI-P-008 Test Category' exists",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          {
+            "name": "Assign category during part creation",
+            "given": "part creation modal open, at least one category exists",
+            "when": "user fills name, description, selects the category, and submits",
+            "then": "part is created with the category assignment persisted"
+          }
+        ],
+        "acceptance_criteria": [
+          "Category react-select dropdown filters and allows selection by typing",
+          "Part is created and visible in the parts list",
+          "Category assignment is visible on the part detail page"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-009",
+      "summary": "Edit a part's name via the UI action menu",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-009"],
+      "description": {
+        "summary": "Allow a warehouse manager to rename an existing part through the Edit action on the part detail page.",
+        "general_description": "The Edit action opens a modal pre-filled with current part values. The user changes the name and saves. The update must be immediately visible on the detail page.",
+        "business_value": "Enables correction of naming errors post-creation without requiring API access.",
+        "preconditions": [
+          "A part exists with a known PK",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          {
+            "name": "Rename part via edit modal",
+            "given": "authenticated user on a part detail page",
+            "when": "user clicks Edit, clears the name, enters a new name, and clicks Submit",
+            "then": "the part detail page reflects the new name immediately"
+          }
+        ],
+        "acceptance_criteria": [
+          "Edit modal pre-fills current name",
+          "New name is accepted on submit",
+          "Part detail page immediately shows the new name",
+          "API GET returns the new name"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-010",
+      "summary": "Delete an inactive part via the UI",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-010"],
+      "description": {
+        "summary": "Allow a warehouse manager to permanently delete a deactivated part through the detail page action menu.",
+        "general_description": "InvenTree enforces a soft-delete pattern: parts must be deactivated (active=false) before deletion. The UI Delete menu item is disabled for active parts. After deactivation the item becomes enabled and clicking it shows a confirmation modal.",
+        "business_value": "Keeps the parts catalogue clean by allowing removal of obsolete components through the UI.",
+        "preconditions": [
+          "A part exists with a known PK",
+          "Part has been deactivated via API PATCH (active=false)",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          {
+            "name": "Delete inactive part",
+            "given": "authenticated user on the detail page of an inactive part",
+            "when": "user opens the actions menu, clicks Delete, and confirms in the modal",
+            "then": "the part is deleted and the API returns 404 for that PK"
+          }
+        ],
+        "acceptance_criteria": [
+          "Delete menu item is disabled for active parts",
+          "After deactivation (page reload) Delete item is enabled",
+          "Confirmation modal shows Delete button",
+          "After confirmation modal closes the part is gone (API returns 404)"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-012-013-015-017",
+      "summary": "Part attribute flags reveal corresponding detail tabs",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-012", "UI-P-013", "UI-P-015", "UI-P-017"],
+      "description": {
+        "summary": "Verify that setting Assembly, Component, Purchaseable, and Template flags each causes the corresponding tab to appear on the part detail page.",
+        "general_description": "InvenTree conditionally shows tabs based on part configuration. Assembly shows BOM, Component shows Used In, Purchaseable shows Suppliers, Template shows Variants.",
+        "business_value": "Ensures the UI surface area matches the part's actual capabilities — prevents user confusion about missing functionality.",
+        "preconditions": [
+          "Part created with the relevant attribute flag via API",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          { "name": "Assembly → BOM tab", "given": "part with assembly=true", "when": "user navigates to detail page", "then": "BOM tab is visible" },
+          { "name": "Component → Used In tab", "given": "part with component=true", "when": "user navigates to detail page", "then": "Used In / Allocated tab is visible" },
+          { "name": "Purchaseable → Suppliers tab", "given": "part with purchaseable=true", "when": "user navigates to detail page", "then": "Suppliers tab is visible" },
+          { "name": "Template → Variants tab", "given": "part with is_template=true", "when": "user navigates to detail page", "then": "Variants tab is visible" }
+        ],
+        "acceptance_criteria": [
+          "assembly=true → BOM tab present in tab list",
+          "component=true → Used In tab present in tab list",
+          "purchaseable=true → Suppliers tab present in tab list",
+          "is_template=true → Variants tab present in tab list"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-020",
+      "summary": "Multiple part attribute flags saved simultaneously",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-020[bom]", "UI-P-020[suppliers]"],
+      "description": {
+        "summary": "Verify that multiple attribute flags (Assembly+Component, Purchaseable+Salable) can be set simultaneously and all corresponding tabs appear.",
+        "general_description": "Parts may have multiple attributes active at once. The UI must correctly show all relevant tabs when multiple flags are set.",
+        "business_value": "Real inventory parts often have multiple classifications (an assembly that is also purchaseable, for example).",
+        "preconditions": ["Part created with multiple attribute flags via API", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "Assembly+Component", "given": "part with assembly=true and component=true", "when": "user views detail page", "then": "BOM tab appears" },
+          { "name": "Purchaseable+Salable", "given": "part with purchaseable=true and salable=true", "when": "user views detail page", "then": "Suppliers tab appears" }
+        ],
+        "acceptance_criteria": [
+          "assembly=true + component=true → BOM tab visible",
+          "purchaseable=true + salable=true → Suppliers tab visible"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-024",
+      "summary": "BOM tab is hidden for non-Assembly parts",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-024"],
+      "description": {
+        "summary": "Verify the BOM tab does not appear on parts with Assembly=false, keeping the UI uncluttered.",
+        "general_description": "Negative assertion: the BOM tab must be absent when assembly is not set. This confirms conditional tab rendering is working bidirectionally.",
+        "business_value": "Prevents user confusion — showing a BOM tab on a non-assembly part would imply structure where none exists.",
+        "preconditions": ["Part with assembly=false exists", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "BOM tab absent", "given": "part with assembly=false", "when": "user navigates to detail page", "then": "BOM tab is not in the tab list" }
+        ],
+        "acceptance_criteria": ["BOM tab selector [aria-label='...bom...'] is not visible on a non-assembly part detail page"]
+      }
+    },
+
+    {
+      "key": "US-UI-027-028-029",
+      "summary": "Part parameters: add, verify tab visibility, and boundary values",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-027", "UI-P-028", "UI-P-029[100-True]", "UI-P-029[0-True]", "UI-P-029[-1-True]"],
+      "description": {
+        "summary": "Verify that parameters can be added to a part via the UI Parameters tab, the tab is always visible, and the value field accepts positive, zero, and negative numbers.",
+        "general_description": "Parameters tab is always visible. Using the Add Parameter action, a user selects a parameter template and enters a value. Boundary values (positive, zero, negative) must all be accepted.",
+        "business_value": "Parameters carry technical specifications. Wide value acceptance (including zero and negative) ensures all physical measurements can be recorded.",
+        "preconditions": [
+          "A part exists with a known PK",
+          "A parameter template exists or is created via API",
+          "Admin user is authenticated"
+        ],
+        "scenarios": [
+          { "name": "Add parameter with value", "given": "part detail page, Parameters tab active", "when": "user adds parameter with template and value '10000'", "then": "parameter appears in the parameters table" },
+          { "name": "Parameters tab always visible", "given": "any part detail page", "when": "user views the tab list", "then": "Parameters tab is present" },
+          { "name": "Positive value accepted", "given": "parameters form open", "when": "user enters '100'", "then": "parameter is saved and visible" },
+          { "name": "Zero value accepted", "given": "parameters form open", "when": "user enters '0'", "then": "parameter is saved and visible" },
+          { "name": "Negative value accepted", "given": "parameters form open", "when": "user enters '-1'", "then": "parameter is saved and visible" }
+        ],
+        "acceptance_criteria": [
+          "Add Parameter modal accepts a template selection and a free-text value",
+          "Saved parameter name and value are visible on the Parameters tab",
+          "Values 100, 0, and -1 are all accepted without validation errors"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-034",
+      "summary": "Create a root-level part category via the UI",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-034"],
+      "description": {
+        "summary": "Allow a parts librarian to create a top-level (root) category through the category index page.",
+        "general_description": "Root categories have no parent. They are created from the category index page using the Add Category button.",
+        "business_value": "Top-level categories form the primary organisational structure of the parts catalogue.",
+        "preconditions": ["Admin user is authenticated", "Category index page is accessible (/web/part/category/index/)"],
+        "scenarios": [
+          { "name": "Create root category", "given": "authenticated user on category index", "when": "user clicks Add Category, fills name and description, submits", "then": "category appears in the list" }
+        ],
+        "acceptance_criteria": [
+          "New root category appears in the category list after creation",
+          "Category is accessible via API GET /api/part/category/"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-035",
+      "summary": "Create a child subcategory under a parent category",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-035"],
+      "description": {
+        "summary": "Allow a parts librarian to create a subcategory nested under an existing parent via the parent category page.",
+        "general_description": "Subcategories inherit the parent's context. The creation form is accessed from the parent category's subcategories tab.",
+        "business_value": "Enables multi-level taxonomy for organising complex parts inventories.",
+        "preconditions": ["A parent category exists", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "Create child category", "given": "authenticated user on parent category page", "when": "user creates a subcategory with a name", "then": "child category appears in the page and is linked to the parent" }
+        ],
+        "acceptance_criteria": [
+          "Child category visible in the page after creation",
+          "Parent–child relationship persisted (API confirms parent field)"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-036",
+      "summary": "Navigate a multi-level category hierarchy using breadcrumbs",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-036"],
+      "description": {
+        "summary": "Verify that navigating into a 3-level category hierarchy shows breadcrumbs containing ancestor names.",
+        "general_description": "InvenTree shows breadcrumbs when inside a category. For a grandparent → parent → child structure, navigating to the child should show at least one ancestor in the breadcrumb bar.",
+        "business_value": "Breadcrumbs are essential navigation aids in deep hierarchies — without them users lose context.",
+        "preconditions": ["3-level category tree exists (grandparent → parent → child)", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "Navigate to child, check breadcrumbs", "given": "3-level category hierarchy", "when": "user opens the child category page", "then": "breadcrumb bar shows at least one ancestor name" }
+        ],
+        "acceptance_criteria": [
+          "Breadcrumb text contains 'UI-P-036 Grandparent' or 'UI-P-036 Parent'",
+          "Page renders without error"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-038",
+      "summary": "Access the parametric table view from a category page",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Low",
+      "test_ids": ["UI-P-038"],
+      "description": {
+        "summary": "Verify that the parametric table view is accessible from a category detail page.",
+        "general_description": "Each category page provides access to a parametric table that shows parts as rows and their parameters as columns.",
+        "business_value": "Parametric search is a key value-add of InvenTree for engineering teams comparing component specifications.",
+        "preconditions": ["A category exists", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "Access parametric view", "given": "authenticated user on a category detail page", "when": "user views the page", "then": "page loads without error and parametric functionality is accessible" }
+        ],
+        "acceptance_criteria": ["Category detail page loads without error at /web/part/category/{pk}/"]
+      }
+    },
+
+    {
+      "key": "US-UI-039",
+      "summary": "Delete an empty category via the UI",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["UI-P-039"],
+      "description": {
+        "summary": "Allow a parts librarian to delete an empty category through the category detail page.",
+        "general_description": "Empty categories can be deleted from the UI. The delete action is available in the category actions menu.",
+        "business_value": "Keeps the category tree clean and prevents accumulation of unused organisational structures.",
+        "preconditions": ["An empty category exists", "Admin user is authenticated"],
+        "scenarios": [
+          { "name": "Delete empty category", "given": "authenticated user on an empty category detail page", "when": "user opens category actions, clicks Delete, and confirms", "then": "category is deleted (API returns 404)" }
+        ],
+        "acceptance_criteria": [
+          "Delete option available in category actions menu",
+          "Confirmation modal appears",
+          "After confirmation: API returns 404 for the deleted category PK"
+        ]
+      }
+    },
+
+    {
+      "key": "US-VIS-001",
+      "summary": "Visual regression baseline for Part detail page",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["VIS-P-001"],
+      "description": {
+        "summary": "Capture and maintain a pixel-level baseline screenshot of the Part detail page to automatically detect CSS and layout regressions.",
+        "general_description": "D1 differentiator: PIL/numpy screenshot comparison. On first run (or UPDATE_SNAPSHOTS=true) a baseline is saved to snapshots/part-detail.png. On subsequent runs the live screenshot is compared against the baseline with a 10% mean pixel-diff tolerance.",
+        "business_value": "Catches visual regressions that DOM-based assertions miss — layout shifts, font changes, component mis-rendering.",
+        "preconditions": [
+          "A part exists with component=true and purchaseable=true",
+          "Admin user is authenticated",
+          "Baseline exists in automation/ui/snapshots/ or UPDATE_SNAPSHOTS=true"
+        ],
+        "scenarios": [
+          { "name": "Capture or compare baseline", "given": "part detail page loaded to networkidle", "when": "screenshot is taken with dynamic elements hidden", "then": "pixel diff against baseline is within 10% threshold" }
+        ],
+        "acceptance_criteria": [
+          "Screenshot captured after networkidle",
+          "Dynamic elements (timestamps) masked before capture",
+          "Pixel diff ≤ 10% threshold OR baseline is saved on first run"
+        ]
+      }
+    },
+
+    {
+      "key": "US-VIS-002",
+      "summary": "Visual regression baseline for Part creation form",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["VIS-P-002"],
+      "description": {
+        "summary": "Capture and maintain a baseline screenshot of the Part creation modal dialog.",
+        "general_description": "The create part modal is a key UI surface. Any layout change (field order, button position, form width) should be caught by this visual test.",
+        "business_value": "Prevents silent regressions in form layout that could confuse users or hide fields.",
+        "preconditions": ["Admin user is authenticated", "Baseline exists or UPDATE_SNAPSHOTS=true"],
+        "scenarios": [
+          { "name": "Capture create modal baseline", "given": "create part modal is open and fully rendered", "when": "screenshot taken", "then": "pixel diff within 10% threshold" }
+        ],
+        "acceptance_criteria": [
+          "Modal is fully visible before screenshot ([role='dialog'] is visible)",
+          "Pixel diff ≤ 10%"
+        ]
+      }
+    },
+
+    {
+      "key": "US-VIS-003",
+      "summary": "Visual regression baseline for Category list view",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["VIS-P-003"],
+      "description": {
+        "summary": "Capture and maintain a full-page baseline screenshot of a category detail view.",
+        "general_description": "Full-page screenshot of a category containing a test category created via API. Covers the category header, tab bar, parts table, and breadcrumbs.",
+        "business_value": "Category views are high-traffic pages; regressions here directly impact day-to-day warehouse operations.",
+        "preconditions": ["A category exists", "Admin user is authenticated", "Baseline exists or UPDATE_SNAPSHOTS=true"],
+        "scenarios": [
+          { "name": "Capture category page baseline", "given": "category detail page loaded to networkidle", "when": "full-page screenshot taken with dynamic content masked", "then": "pixel diff within 10% threshold" }
+        ],
+        "acceptance_criteria": [
+          "Full-page screenshot captured after networkidle",
+          "Pixel diff ≤ 10%"
+        ]
+      }
+    },
+
+    {
+      "key": "US-VIS-004",
+      "summary": "Visual regression baseline for part with all attributes enabled",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "Medium",
+      "test_ids": ["VIS-P-004"],
+      "description": {
+        "summary": "Capture a baseline of a part that has Assembly, Component, Trackable, Purchaseable, and Salable all enabled — the maximum tab-count configuration.",
+        "general_description": "A part with all relevant flags shows the most tabs (BOM, Used In, Suppliers, etc.). This configuration is most likely to expose tab-layout regressions.",
+        "business_value": "Catches regressions triggered by specific attribute combinations that wouldn't surface in tests with fewer attributes.",
+        "preconditions": ["Part with all flags enabled via API", "Admin user is authenticated", "Baseline exists or UPDATE_SNAPSHOTS=true"],
+        "scenarios": [
+          { "name": "Capture all-attributes part baseline", "given": "part detail page with all attribute flags set", "when": "screenshot taken after networkidle", "then": "pixel diff within 10% threshold" }
+        ],
+        "acceptance_criteria": [
+          "Screenshot captured after networkidle with dynamic content masked",
+          "Pixel diff ≤ 10%"
+        ]
+      }
+    },
+
+    {
+      "key": "US-UI-050",
+      "summary": "End-to-end part lifecycle: create → parameters → stock → category verification",
+      "issuetype": "Story",
+      "status": "Open",
+      "priority": "High",
+      "test_ids": ["UI-P-050"],
+      "description": {
+        "summary": "Validate the complete InvenTree parts workflow in a single end-to-end flow: create a categorised part via UI, add a parameter, create a stock item, verify the part in the category view, and assert a final visual baseline.",
+        "general_description": "This cross-functional test exercises every major UI surface in sequence. It is the primary integration confidence test for the UI layer. It also includes a D1 visual snapshot at the final state.",
+        "business_value": "Provides single-test confidence that the entire UI workflow — from part creation to stocked inventory — is functioning as an integrated system.",
+        "preconditions": [
+          "Admin user is authenticated",
+          "Category 'XF Test Category' can be created via API",
+          "Parameter template 'XF Resistance' can be created via API"
+        ],
+        "scenarios": [
+          {
+            "name": "Full cross-functional flow",
+            "given": "authenticated user, category and parameter template created via API",
+            "when": "user: (1) creates part via UI in that category, (2) adds parameter via Parameters tab, (3) adds stock item via Stock tab, (4) navigates to category Parts sub-tab",
+            "then": "(1) part visible in list, (2) parameter visible on part page, (3) stock quantity 25 visible, (4) part visible in category view, (5) visual snapshot within threshold"
+          }
+        ],
+        "acceptance_criteria": [
+          "Part created via UI is findable via API",
+          "Parameter 'XF Resistance' with value '4700' visible on part detail",
+          "Stock tab shows quantity 25 after stock creation",
+          "Part visible in category's Parts sub-tab",
+          "Final visual snapshot passes 10% pixel diff threshold"
+        ]
+      }
+    }
+
+  ]
+}

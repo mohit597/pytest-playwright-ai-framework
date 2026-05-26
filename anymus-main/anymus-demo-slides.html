@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANYMUS — AI-Native Shift Left QA Pipeline · QAHub AI Hackathon 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #040c08;
+  --bg-card: #0a1610;
+  --bg-elevated: #112018;
+  --surface: #172b1e;
+  --border: #1a3326;
+  --text: #d6f5e3;
+  --text-muted: #5a8a70;
+  --accent: #00e5a0;
+  --accent-glow: #33edb5;
+  --accent2: #00b4d8;
+  --accent3: #ff6b6b;
+  --accent4: #ffb347;
+  --purple: #a78bfa;
+  --kbd-bg: #091210;
+  --kbd-border: #1a3326;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck { width: 100%; height: 100%; position: relative; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 5vh 8vw;
+  opacity: 0; transform: translateX(40px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.slide.exit-left { opacity: 0; transform: translateX(-40px); }
+
+.progress {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.4s ease; z-index: 100;
+}
+.counter {
+  position: fixed; bottom: 2.5vh; right: 4vw;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  color: var(--text-muted); z-index: 100;
+}
+.nav-hint {
+  position: fixed; bottom: 2.5vh; left: 4vw;
+  font-size: 0.75rem; color: var(--text-muted); opacity: 0.5; z-index: 100;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif; font-weight: 900;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.4em;
+}
+h2 {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  line-height: 1.15; letter-spacing: -0.015em; margin-bottom: 0.6em;
+}
+.subtitle {
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  color: var(--text-muted); font-weight: 400; line-height: 1.5; max-width: 700px;
+}
+.label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--accent); margin-bottom: 1em;
+}
+.points { list-style: none; display: flex; flex-direction: column; gap: 0.9em; margin-top: 0.5em; }
+.points li {
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem); line-height: 1.55;
+  padding-left: 1.4em; position: relative; color: var(--text);
+}
+.points li::before {
+  content: ''; position: absolute; left: 0; top: 0.55em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+}
+.points li strong { color: var(--accent2); font-weight: 700; }
+.points li em { color: var(--text-muted); font-style: normal; }
+
+kbd {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+  background: var(--kbd-bg); border: 1px solid var(--kbd-border);
+  border-radius: 5px; padding: 0.15em 0.5em; color: var(--accent-glow); white-space: nowrap;
+}
+code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
+  background: var(--kbd-bg); border-radius: 4px;
+  padding: 0.1em 0.4em; color: var(--accent);
+}
+
+/* Title slide */
+.title-slide h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent-glow) 45%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* Phase flow */
+.phase-flow { display: flex; gap: 0; margin: 1.2em 0; align-items: stretch; }
+.phase-step {
+  flex: 1; padding: 1em 1.1em;
+  background: var(--bg-card); border: 1px solid var(--border);
+  position: relative;
+}
+.phase-step:first-child { border-radius: 12px 0 0 12px; }
+.phase-step:last-child { border-radius: 0 12px 12px 0; }
+.phase-step.done { border-color: var(--accent); background: rgba(0,229,160,0.05); }
+.phase-step .num {
+  font-family: 'Playfair Display', serif; font-size: 1.5rem;
+  font-weight: 900; color: var(--accent); opacity: 0.3; line-height: 1; margin-bottom: 0.2em;
+}
+.phase-step h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.2em; }
+.phase-step p { font-size: 0.73rem; color: var(--text-muted); line-height: 1.4; }
+.phase-step .cmd {
+  margin-top: 0.4em; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; color: var(--accent2);
+}
+
+/* Differentiator cards */
+.diff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin: 1.2em 0; }
+.diff-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.2em 1.3em;
+}
+.diff-card .badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  margin-bottom: 0.5em;
+}
+.diff-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35em; }
+.diff-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.diff-card.d1 { border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.04); }
+.diff-card.d1 .badge { color: var(--purple); }
+.diff-card.d2 { border-color: rgba(0,180,216,0.4); background: rgba(0,180,216,0.04); }
+.diff-card.d2 .badge { color: var(--accent2); }
+.diff-card.d3 { border-color: rgba(0,229,160,0.4); background: rgba(0,229,160,0.04); }
+.diff-card.d3 .badge { color: var(--accent); }
+
+/* Architecture boxes */
+.arch-flow { display: flex; align-items: center; gap: 0.7em; flex-wrap: wrap; margin: 0.8em 0; }
+.arch-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.7em 1em; text-align: center; min-width: 100px;
+}
+.arch-box.core { border-color: var(--accent); background: rgba(0,229,160,0.06); }
+.arch-box.mock { border-color: var(--accent2); background: rgba(0,180,216,0.05); }
+.arch-box .icon { font-size: 1.2rem; margin-bottom: 0.2em; }
+.arch-box .name { font-weight: 600; font-size: 0.85rem; }
+.arch-box .detail { font-size: 0.68rem; color: var(--text-muted); }
+.arch-connector { color: var(--text-muted); font-size: 1.1rem; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8em; margin: 0.8em 0; }
+.stat-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.9em 1em; text-align: center;
+}
+.stat-box .num {
+  font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900;
+  line-height: 1; margin-bottom: 0.1em;
+}
+.stat-box .label2 { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Checklist */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 0.6em; margin-top: 0.8em; }
+.checklist li { display: flex; gap: 0.7em; align-items: flex-start; font-size: 0.9rem; line-height: 1.5; }
+.checklist .tick { color: var(--accent); font-size: 1rem; flex-shrink: 0; margin-top: 0.1em; }
+.checklist .cross { color: var(--accent3); font-size: 1rem; flex-shrink: 0; margin-top: 0.1em; }
+
+/* Demo modal */
+.demo-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease; backdrop-filter: blur(4px);
+}
+.demo-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.demo-modal {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 2em 2.5em;
+  max-width: 680px; width: 90vw; max-height: 85vh; overflow-y: auto;
+  position: relative; transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+.demo-modal-overlay.open .demo-modal { transform: translateY(0); }
+.demo-modal-close {
+  position: absolute; top: 1em; right: 1.2em;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.3rem; cursor: pointer; line-height: 1; transition: color 0.2s;
+}
+.demo-modal-close:hover { color: var(--text); }
+.demo-modal h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3em; }
+.demo-modal .demo-goal {
+  font-size: 0.85rem; color: var(--accent4);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.2em;
+}
+.demo-steps { list-style: none; display: flex; flex-direction: column; gap: 1em; }
+.demo-steps li { display: flex; gap: 1em; align-items: flex-start; }
+.demo-steps .step-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+  color: var(--accent); background: rgba(0,229,160,0.12);
+  border: 1px solid rgba(0,229,160,0.3); border-radius: 6px;
+  padding: 0.2em 0.5em; white-space: nowrap; flex-shrink: 0; margin-top: 0.1em;
+}
+.demo-steps .step-body { font-size: 0.95rem; line-height: 1.5; color: var(--text); }
+.demo-steps .step-body strong { color: var(--accent); }
+.demo-steps .step-body em { color: var(--text-muted); font-style: normal; }
+.demo-modal .demo-tip {
+  margin-top: 1.5em; padding: 0.8em 1.2em;
+  background: rgba(0,229,160,0.06); border: 1px solid rgba(0,229,160,0.2);
+  border-radius: 8px; font-size: 0.85rem; color: var(--accent); line-height: 1.5;
+}
+.demo-modal .prompt-box {
+  margin: 0.5em 0; background: var(--bg-elevated);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.8em 1em; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; white-space: pre-wrap;
+}
+
+/* Demo break button */
+.demo-break {
+  margin-top: 1.2em;
+  background: linear-gradient(135deg, rgba(0,229,160,0.08), rgba(0,180,216,0.06));
+  border: 1px dashed var(--accent); border-radius: 10px;
+  padding: 0.9em 1.4em; display: flex; align-items: center; gap: 0.8em;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.demo-break:hover {
+  background: linear-gradient(135deg, rgba(0,229,160,0.16), rgba(0,180,216,0.1));
+  border-color: var(--accent2);
+}
+.demo-break .icon { font-size: 1.3rem; }
+.demo-break .text { font-size: 0.93rem; font-weight: 500; color: var(--accent-glow); }
+.demo-break .click-hint { margin-left: auto; font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; opacity: 0.7; }
+
+/* Animations */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-line { opacity: 0; }
+.anim-line.anim-play { animation: fadeSlideIn 0.4s ease forwards; }
+
+@media (max-width: 900px) {
+  .slide { padding: 4vh 5vw; }
+  .diff-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .phase-flow { flex-direction: column; }
+  .phase-step { border-radius: 10px !important; }
+  .arch-flow { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter"></div>
+<div class="nav-hint">Arrow keys or Space to navigate</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: Title -->
+  <section class="slide title-slide active" data-slide="0">
+    <div class="label">QAHub AI Hackathon 2026 &mdash; ANYMUS &mdash; April 14, 2026</div>
+    <h1>ANYMUS</h1>
+    <p class="subtitle" style="font-size: clamp(1.1rem, 2vw, 1.5rem); margin-top: 0.2em; color: var(--accent);">AI-Native Shift Left QA Pipeline</p>
+    <p class="subtitle" style="margin-top: 0.7em;">
+      Testing the <strong style="color:var(--accent2);">InvenTree Parts Module</strong> with AI-generated test cases, OpenAPI contract validation, mock resilience, visual regression — all gated by a pre-flight health check.
+    </p>
+    <div style="display:flex;gap:0.6em;margin-top:1.6em;flex-wrap:wrap;">
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:20px;padding:0.4em 1em;font-size:0.8rem;color:var(--accent);">CodemIE — Claude Code</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:0.4em 1em;font-size:0.8rem;color:var(--purple);">Cursor IDE</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:20px;padding:0.4em 1em;font-size:0.8rem;color:var(--accent2);">EPAM DIAL</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(255,179,71,0.35);border-radius:20px;padding:0.4em 1em;font-size:0.8rem;color:var(--accent4);">Jira MCP</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(90,138,112,0.4);border-radius:20px;padding:0.4em 1em;font-size:0.8rem;color:var(--text-muted);">GitHub Actions</div>
+    </div>
+    <p style="margin-top:1.6em;font-size:0.85rem;color:var(--text-muted);">QAHub AI Hackathon 2026 &mdash; April 14 &mdash; EPAM ADLC Aligned</p>
+  </section>
+
+  <!-- SLIDE 2: The Problem -->
+  <section class="slide" data-slide="1">
+    <div class="label">The Problem</div>
+    <h2>Testing Always Arrives Too Late</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">In traditional QA, bugs are found after they're expensive to fix. Tests are written after code. Infrastructure failures burn CI minutes.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;align-items:start;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5em;">Traditional QA Pipeline</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="background:var(--bg-card);border:1px solid rgba(255,107,107,0.2);border-radius:10px 10px 0 0;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">📋</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">Requirements written</div><div style="font-size:0.71rem;color:var(--text-muted);">No test cases, no coverage baseline, no testability check</div></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(255,107,107,0.2);border-top:none;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">💻</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">Dev implements feature</div><div style="font-size:0.71rem;color:var(--text-muted);">API contract unverified, UI untested</div></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(255,107,107,0.2);border-top:none;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">🧪</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">QA writes test cases</div><div style="font-size:0.71rem;color:var(--text-muted);">Infrastructure down → entire suite fails, wasted CI time</div></div>
+          </div>
+          <div style="background:rgba(255,107,107,0.07);border:1px solid rgba(255,107,107,0.3);border-radius:0 0 10px 10px;border-top:none;padding:0.55em 0.9em;display:flex;gap:0.6em;align-items:center;">
+            <span style="font-size:0.85rem;">🔴</span>
+            <div style="font-size:0.74rem;color:var(--accent3);">Gaps discovered at sprint review — rework is expensive, delivery slips</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5em;">With ANYMUS Shift Left</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.25);border-radius:10px 10px 0 0;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">🤖</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">AI ingests live docs → test cases generated</div><div style="font-size:0.71rem;color:var(--text-muted);">Before code is touched — coverage baseline exists from day one</div></div>
+          </div>
+          <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-top:none;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">📡</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">Health gate runs first (D3)</div><div style="font-size:0.71rem;color:var(--text-muted);">If API is down → suite skips immediately, no wasted CI minutes</div></div>
+          </div>
+          <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-top:none;padding:0.6em 0.9em;display:flex;gap:0.7em;align-items:center;">
+            <span style="font-size:0.95rem;">🔌</span>
+            <div><div style="font-size:0.8rem;font-weight:600;">Mock mode activates (D2)</div><div style="font-size:0.71rem;color:var(--text-muted);">Testing continues even when InvenTree is unreachable</div></div>
+          </div>
+          <div style="background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.35);border-radius:0 0 10px 10px;border-top:none;padding:0.55em 0.9em;display:flex;gap:0.6em;align-items:center;">
+            <span style="font-size:0.85rem;">🟢</span>
+            <div style="font-size:0.74rem;color:var(--accent);">Quality is continuous — every push gated, every regression caught</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:0.8em;display:grid;grid-template-columns:repeat(4,1fr);gap:0.6em;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:0.6em 0.8em;text-align:center;">
+        <div style="font-size:0.7rem;color:var(--accent);font-weight:700;margin-bottom:0.1em;">SHIFT LEFT</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Test cases before code</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:0.6em 0.8em;text-align:center;">
+        <div style="font-size:0.7rem;color:var(--accent2);font-weight:700;margin-bottom:0.1em;">CONTRACT</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">schemathesis API contracts</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:0.6em 0.8em;text-align:center;">
+        <div style="font-size:0.7rem;color:var(--accent4);font-weight:700;margin-bottom:0.1em;">RESILIENCE</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Mock mode — no infra needed</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:0.6em 0.8em;text-align:center;">
+        <div style="font-size:0.7rem;color:var(--purple);font-weight:700;margin-bottom:0.1em;">VISUAL</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Pixel-perfect regression</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Three Differentiators -->
+  <section class="slide" data-slide="2">
+    <div class="label">What Makes ANYMUS Stand Out</div>
+    <h2>Three Key Differentiators</h2>
+    <p class="subtitle" style="margin-bottom: 1em;">Every hackathon criterion — Originality, Technology, Scalability — is addressed by one of these three.</p>
+
+    <div class="diff-grid">
+      <div class="diff-card d3">
+        <div class="badge">D3 — Pre-flight Health Check</div>
+        <h3>API Health Gate</h3>
+        <p>Before any test runs, a health check pings all 6 InvenTree Part API endpoints. If any critical endpoint is down, the entire suite skips immediately — no wasted CI minutes, no false failures.</p>
+        <div style="margin-top:0.7em;display:flex;flex-direction:column;gap:0.25em;">
+          <div style="font-size:0.72rem;color:var(--accent);">✓ Standalone script: <code>scripts/health_check.py</code></div>
+          <div style="font-size:0.72rem;color:var(--accent);">✓ Pytest gate: <code>test_meta_health.py</code></div>
+          <div style="font-size:0.72rem;color:var(--accent);">✓ Gates both API and UI test suites</div>
+          <div style="font-size:0.72rem;color:var(--accent);">✓ Outputs colored table + <code>health_report.json</code></div>
+        </div>
+      </div>
+      <div class="diff-card d2">
+        <div class="badge">D2 — Mock API Mode</div>
+        <h3>Resilient Testing</h3>
+        <p>When InvenTree is unreachable — CI flakiness, outage, offline dev — testing does not stop. The <code>responses</code> library intercepts HTTP calls and replays recorded fixtures when <code>MOCK_MODE=true</code>.</p>
+        <div style="margin-top:0.7em;display:flex;flex-direction:column;gap:0.25em;">
+          <div style="font-size:0.72rem;color:var(--accent2);">✓ 5 JSON mock fixtures in <code>mocks/</code></div>
+          <div style="font-size:0.72rem;color:var(--accent2);">✓ Full suite runnable offline</div>
+          <div style="font-size:0.72rem;color:var(--accent2);">✓ Same business logic as live tests</div>
+          <div style="font-size:0.72rem;color:var(--accent2);">✓ One env var switches modes</div>
+        </div>
+      </div>
+      <div class="diff-card d1">
+        <div class="badge">D1 — Image Recognition</div>
+        <h3>Visual Regression</h3>
+        <p>Playwright's <code>toHaveScreenshot()</code> captures pixel-perfect baselines of critical Part pages. On CI, any visual drift — CSS regression, layout shift — fails the test. DOM assertions cannot catch this.</p>
+        <div style="margin-top:0.7em;display:flex;flex-direction:column;gap:0.25em;">
+          <div style="font-size:0.72rem;color:var(--purple);">✓ Baselines in <code>automation/ui/snapshots/</code></div>
+          <div style="font-size:0.72rem;color:var(--purple);">✓ Part Detail, Create form, Category view</div>
+          <div style="font-size:0.72rem;color:var(--purple);">✓ <code>@pytest.mark.visual</code> for selective runs</div>
+          <div style="font-size:0.72rem;color:var(--purple);">✓ Playwright Python + Page Object Model</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:0.8em;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);border-radius:10px;padding:0.8em 1.2em;font-size:0.88rem;color:var(--text-muted);line-height:1.55;">
+      <strong style="color:var(--accent);">Shift Left principle:</strong> AI ingests live documentation → test cases generated before code is touched → API contract validated → infra gate prevents false failures → visual baseline catches DOM-invisible regressions. This is not just automation — it's a <strong style="color:var(--text);">quality-first engineering system</strong>.
+    </div>
+  </section>
+
+  <!-- SLIDE 4: The AUT -->
+  <section class="slide" data-slide="3">
+    <div class="label">Application Under Test</div>
+    <h2>InvenTree Parts Module</h2>
+    <p class="subtitle" style="margin-bottom: 0.9em;">Open-source inventory management system. Our scope is the Parts module — the most feature-rich, well-documented, and API-testable part of InvenTree.</p>
+
+    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:1.2em;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">API Endpoints Tested</div>
+          <div style="display:flex;flex-direction:column;gap:0.35em;font-size:0.8rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/part/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET POST · CRUD + filtering + pagination</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/part/{id}/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET PATCH PUT DELETE</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/part/category/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET POST · hierarchy + tree</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/parameter/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET POST · part parameters (v1.3 path)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/bom/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET POST DELETE · BOM management</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <code>/api/attachment/</code>
+              <span style="font-size:0.7rem;color:var(--text-muted);">GET POST DELETE · file attachments (v1.3)</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.25);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Environment</div>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:0.3em 0.8em;font-size:0.78rem;color:var(--text-muted);">
+            <span style="color:var(--text-muted);">URL</span><code>http://inventree.localhost</code>
+            <span style="color:var(--text-muted);">Auth</span><span>GET <code>/api/user/token/</code> → Bearer token</span>
+            <span style="color:var(--text-muted);">Version</span><span>InvenTree v1.3 (Docker Compose)</span>
+            <span style="color:var(--text-muted);">Proxy</span><span>Caddy reverse proxy on port 80</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">v1.3 Breaking Changes Discovered</div>
+          <div style="display:flex;flex-direction:column;gap:0.35em;font-size:0.75rem;color:var(--text-muted);">
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span><code>/api/part/parameter/</code> moved to <code>/api/parameter/</code></span></div>
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span>Attachment endpoint moved to <code>/api/attachment/</code></span></div>
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span>Part name <code>max_length</code> is 100 (not 250)</span></div>
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span>DELETE part requires <code>PATCH active=false</code> first</span></div>
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span>No <code>limit</code> param → plain list (not paginated)</span></div>
+            <div style="display:flex;gap:0.4em;"><span style="color:var(--accent4);">→</span><span>Revisions only on non-template parts</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.25);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Shift Left in Action</div>
+          <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">Live OpenAPI schema (<code>/api/schema/?format=json</code>) was fetched and parsed to discover correct endpoint paths — tests adapted to the actual API, not assumptions. API contract tests validate the schema itself.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: D3 — Health Check -->
+  <section class="slide" data-slide="4">
+    <div class="label">Differentiator D3 — Pre-flight Health Check</div>
+    <h2>The Gate That Protects Everything</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">Before any test runs — API or UI — a pre-flight health check pings all critical endpoints. Infrastructure failure won't masquerade as test failure.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:11px;overflow:hidden;">
+          <div style="background:var(--bg-elevated);padding:0.5em 0.9em;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent);">$ python scripts/health_check.py --base-url http://inventree.localhost</div>
+          <div style="padding:0.8em 1em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.9;color:var(--text-muted);">
+            <div style="color:var(--text);font-weight:600;margin-bottom:0.3em;">ANYMUS — Pre-flight Health Check</div>
+            <div>Target: <span style="color:var(--accent2);">http://inventree.localhost</span></div>
+            <div style="border-top:1px solid var(--border);margin:0.3em 0;padding-top:0.3em;">Endpoint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status&nbsp;&nbsp;Latency</div>
+            <div>/api/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">200</span>&nbsp;&nbsp;&nbsp;&nbsp;40ms&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div>/api/part/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">401</span>&nbsp;&nbsp;&nbsp;&nbsp;6ms&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div>/api/part/category/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">401</span>&nbsp;&nbsp;&nbsp;&nbsp;5ms&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div>/api/part/category/tree/&nbsp;<span style="color:var(--accent);">401</span>&nbsp;&nbsp;&nbsp;&nbsp;6ms&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div>/api/part/category/param/&nbsp;<span style="color:var(--accent);">401</span>&nbsp;&nbsp;&nbsp;&nbsp;5ms&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div>/api/part/test-template/&nbsp;<span style="color:var(--accent);">401</span>&nbsp;&nbsp;&nbsp;&nbsp;5ms&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent);">✓ UP</span></div>
+            <div style="border-top:1px solid var(--border);margin-top:0.3em;padding-top:0.3em;color:var(--accent);font-weight:700;">Result: ALL SYSTEMS GO ✓  (6/6 healthy)</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">How It Works</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.4em;font-size:0.8rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">1.</span> Pings 6 endpoints with 5s timeout each</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">2.</span> <code>200</code> or <code>401</code> = healthy (server responds)</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">3.</span> <code>500</code>, <code>404</code>, or refused = unhealthy</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">4.</span> Outputs colored table to console</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">5.</span> Writes <code>health_report.json</code> for CI artifacts</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">6.</span> Exit code <code>0</code> (all up) or <code>1</code> (any down)</li>
+          </ul>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.25);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Pytest Integration</div>
+          <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;"><code>test_meta_health.py</code> runs <strong style="color:var(--text);">first</strong> (filename prefix). The session-scoped <code>api_health_gate</code> fixture in <code>conftest.py</code> calls <code>pytest.skip()</code> on the entire session if any endpoint is down — protecting both API and UI test suites.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: D2 — Mock API -->
+  <section class="slide" data-slide="5">
+    <div class="label">Differentiator D2 — Mock API Mode</div>
+    <h2>Testing Never Stops</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">When InvenTree is unreachable, <code>MOCK_MODE=true</code> activates. The <code>responses</code> library intercepts all HTTP calls and replays recorded JSON fixtures — same business logic, zero infrastructure.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">Mock Fixtures — <code>automation/api/mocks/</code></div>
+        <div style="display:flex;flex-direction:column;gap:0.4em;">
+          <div style="display:flex;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.55em 0.9em;">
+            <code style="font-size:0.7rem;min-width:160px;">part_list.json</code>
+            <span style="font-size:0.75rem;color:var(--text-muted);">GET /api/part/ → 3 parts, all fields</span>
+          </div>
+          <div style="display:flex;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.55em 0.9em;">
+            <code style="font-size:0.7rem;min-width:160px;">part_detail.json</code>
+            <span style="font-size:0.75rem;color:var(--text-muted);">GET /api/part/1/ → single part, complete</span>
+          </div>
+          <div style="display:flex;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.55em 0.9em;">
+            <code style="font-size:0.7rem;min-width:160px;">part_create_201.json</code>
+            <span style="font-size:0.75rem;color:var(--text-muted);">POST /api/part/ → success response</span>
+          </div>
+          <div style="display:flex;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.55em 0.9em;">
+            <code style="font-size:0.7rem;min-width:160px;">part_create_400.json</code>
+            <span style="font-size:0.75rem;color:var(--text-muted);">POST /api/part/ → validation error</span>
+          </div>
+          <div style="display:flex;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.55em 0.9em;">
+            <code style="font-size:0.7rem;min-width:160px;">category_list.json</code>
+            <span style="font-size:0.75rem;color:var(--text-muted);">GET /api/part/category/ → hierarchy</span>
+          </div>
+        </div>
+        <div style="margin-top:0.7em;background:var(--bg-card);border:1px solid rgba(0,180,216,0.25);border-radius:8px;padding:0.6em 0.9em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.6;color:var(--text-muted);">
+          <div><span style="color:var(--accent);">$</span> MOCK_MODE=true pytest tests/test_part_mock.py -v</div>
+          <div style="color:var(--accent);">10 passed in 0.24s</div>
+          <div style="color:var(--text-muted);font-size:0.65rem;">✓ Zero network calls — completely offline</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">What Mock Tests Cover</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.35em;font-size:0.78rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Part list returns count + results</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Part fields present and typed correctly</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Assembly flag in fixture is correct</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Part detail has notes field</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Create success returns 201</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Create with missing name returns 400</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Category list has hierarchy fields</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span> Category level reflected in pathstring</li>
+          </ul>
+        </div>
+        <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-radius:11px;padding:0.8em 1em;font-size:0.8rem;color:var(--text-muted);line-height:1.5;">
+          <strong style="color:var(--accent);">Key principle:</strong> Mock tests exercise the same business assertions as live tests — only the transport layer differs. This guarantees that switching <code>MOCK_MODE</code> on/off produces consistent results.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: D1 — Visual Regression -->
+  <section class="slide" data-slide="6">
+    <div class="label">Differentiator D1 — Visual Regression</div>
+    <h2>Beyond DOM Assertions</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">Playwright's built-in <code>toHaveScreenshot()</code> captures pixel-perfect baselines. Any CSS regression, layout shift, or rendering change fails the test — even if all selectors still pass.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">Visual Test Coverage</div>
+        <div style="display:flex;flex-direction:column;gap:0.45em;">
+          <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.25);border-radius:9px;padding:0.7em 0.9em;">
+            <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.15em;">Part Detail Page</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Full part view with all tabs — catches layout regressions after UI updates</div>
+            <div style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--purple);margin-top:0.2em;">VIS-P-001 → snapshots/part-detail.png</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.25);border-radius:9px;padding:0.7em 0.9em;">
+            <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.15em;">Part Create Form</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Creation form viewport — catches field reordering, validation UI drift</div>
+            <div style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--purple);margin-top:0.2em;">VIS-P-002 → snapshots/part-create-form.png</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.25);border-radius:9px;padding:0.7em 0.9em;">
+            <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.15em;">Category Hierarchy View</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Full-page category list — catches tree rendering regressions</div>
+            <div style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--purple);margin-top:0.2em;">VIS-P-003 → snapshots/category-view.png</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.25);border-radius:9px;padding:0.7em 0.9em;">
+            <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.15em;">Part with All Attributes</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Part with all 8 boolean flags set — catches attribute display regressions</div>
+            <div style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--purple);margin-top:0.2em;">VIS-P-004 → snapshots/part-attributes-all.png</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Playwright Python Stack</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.3em;font-size:0.78rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span> Page Object Model — no raw selectors in test files</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span> <code>expect(locator).to_be_visible()</code> — no <code>time.sleep()</code></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span> <code>@pytest.mark.visual</code> for selective runs</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span> Baselines committed to <code>automation/ui/snapshots/</code></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span> <code>UPDATE_SNAPSHOTS=true</code> to regenerate baselines</li>
+          </ul>
+        </div>
+        <div style="background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.25);border-radius:11px;padding:0.8em 1em;font-size:0.8rem;color:var(--text-muted);line-height:1.5;">
+          <strong style="color:var(--purple);">Why this matters for Shift Left:</strong> Visual regressions are caught at the commit level — not when a designer notices a layout is broken in production. The baseline is the spec for how the UI should look.
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.25);border-radius:9px;padding:0.7em 0.9em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.7;color:var(--text-muted);">
+          <div><span style="color:var(--accent);">$</span> cd automation/ui && pytest tests/test_visual_regression.py -v --headed</div>
+          <div><span style="color:var(--accent);">$</span> UPDATE_SNAPSHOTS=true pytest tests/test_visual_regression.py</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: API Test Architecture -->
+  <section class="slide" data-slide="7">
+    <div class="label">API Test Architecture</div>
+    <h2>pytest + requests + schemathesis</h2>
+    <p class="subtitle" style="margin-bottom: 0.7em;">Every test has a fixture for setup/teardown. Every boundary case uses <code>@pytest.mark.parametrize</code>. Every test asserts status code + response body + business rule.</p>
+
+    <div class="arch-flow" style="justify-content:center;flex-wrap:wrap;margin:0.7em 0;">
+      <div class="arch-box core">
+        <div class="icon">🔬</div>
+        <div class="name">pytest</div>
+        <div class="detail">Test runner + fixtures</div>
+      </div>
+      <span class="arch-connector">→</span>
+      <div class="arch-box core">
+        <div class="icon">📡</div>
+        <div class="name">requests</div>
+        <div class="detail">HTTP client + session</div>
+      </div>
+      <span class="arch-connector">→</span>
+      <div class="arch-box core">
+        <div class="icon">📋</div>
+        <div class="name">conftest.py</div>
+        <div class="detail">auth · cleanup · gate</div>
+      </div>
+      <span class="arch-connector">→</span>
+      <div style="display:flex;flex-direction:column;gap:0.4em;">
+        <div class="arch-box mock" style="padding:0.4em 0.7em;min-width:80px;">
+          <div class="name" style="font-size:0.75rem;">live API</div>
+          <div class="detail">MOCK_MODE=false</div>
+        </div>
+        <div class="arch-box" style="border-color:var(--accent2);background:rgba(0,180,216,0.05);padding:0.4em 0.7em;min-width:80px;">
+          <div class="name" style="font-size:0.75rem;">mock fixtures</div>
+          <div class="detail">MOCK_MODE=true</div>
+        </div>
+      </div>
+      <span class="arch-connector">→</span>
+      <div class="arch-box core">
+        <div class="icon">📊</div>
+        <div class="name">schemathesis</div>
+        <div class="detail">OpenAPI contract tests</div>
+      </div>
+      <span class="arch-connector">→</span>
+      <div class="arch-box core">
+        <div class="icon">📊</div>
+        <div class="name">Allure Report</div>
+        <div class="detail">trends · per-feature · HTTP capture</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.7em;margin-top:0.4em;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.8em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);margin-bottom:0.35em;">14 Test Modules</div>
+        <div style="font-size:0.73rem;color:var(--text-muted);line-height:1.5;">cleanup · health · attachments · bom · categories · crud · filtering · mock · notes · parameters · related · revisions · templates · validation</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.8em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);margin-bottom:0.35em;">Fixtures in conftest.py</div>
+        <div style="font-size:0.73rem;color:var(--text-muted);line-height:1.5;"><code>auth_token</code> (session) · <code>api_client</code> (session) · <code>created_part</code> · <code>created_category</code> · <code>parameter_template</code> · <code>delete_part</code> · <code>api_health_gate</code></div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.8em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent4);margin-bottom:0.35em;">Key Conventions</div>
+        <div style="font-size:0.73rem;color:var(--text-muted);line-height:1.5;">UUID suffix on all fixture names (uniqueness) · deactivate before delete · <code>limit=N</code> for paginated responses · Test IDs: <code>API-P-XXX</code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: Test Results — API + UI -->
+  <section class="slide" data-slide="8">
+    <div class="label">Test Results — API + UI · Live Run Against InvenTree v1.3</div>
+    <h2>209 Tests · 0 Critical Failures</h2>
+    <p class="subtitle" style="margin-bottom: 0.6em;">Starting from 74 passed / 129 failed, every v1.3 breaking change was diagnosed and fixed. UI login root-cause (allauth headless API) resolved in the same pipeline.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;margin-bottom:0.6em;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">API Suite</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5em;">
+          <div class="stat-box" style="border-color:rgba(0,229,160,0.4);">
+            <div class="num" style="color:var(--accent);font-size:1.5rem;">166</div>
+            <div class="label2">API passed</div>
+          </div>
+          <div class="stat-box" style="border-color:rgba(0,180,216,0.3);">
+            <div class="num" style="color:var(--accent2);font-size:1.5rem;">27</div>
+            <div class="label2">Contract</div>
+          </div>
+          <div class="stat-box" style="border-color:rgba(0,180,216,0.3);">
+            <div class="num" style="color:var(--accent2);font-size:1.5rem;">10</div>
+            <div class="label2">Mock (D2)</div>
+          </div>
+          <div class="stat-box" style="border-color:var(--border);">
+            <div class="num" style="color:var(--accent4);font-size:1.5rem;">39s</div>
+            <div class="label2">Runtime</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">UI Suite (Playwright)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5em;">
+          <div class="stat-box" style="border-color:rgba(167,139,250,0.4);">
+            <div class="num" style="color:var(--purple);font-size:1.5rem;">23</div>
+            <div class="label2">UI passed</div>
+          </div>
+          <div class="stat-box" style="border-color:rgba(167,139,250,0.3);">
+            <div class="num" style="color:var(--purple);font-size:1.5rem;">4</div>
+            <div class="label2">Visual (D1)</div>
+          </div>
+          <div class="stat-box" style="border-color:rgba(255,179,71,0.3);">
+            <div class="num" style="color:var(--accent4);font-size:1.5rem;">5</div>
+            <div class="label2">Known gaps</div>
+          </div>
+          <div class="stat-box" style="border-color:var(--border);">
+            <div class="num" style="color:var(--accent4);font-size:1.5rem;">2m</div>
+            <div class="label2">Runtime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8em;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.35em;">API — Key Fixes (v1.3 Migration)</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.22em;font-size:0.73rem;color:var(--text-muted);">
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span>UUID suffix on all fixture names — no uniqueness conflicts</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span>Deactivate before delete — InvenTree v1.3 two-step requirement</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span><code>/api/part/parameter/</code> → <code>/api/parameter/</code></li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span><code>/api/part/attachment/</code> → <code>/api/attachment/</code></li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span>Add <code>limit=N</code> for paginated responses</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--accent);">✓</span>Schemathesis regex anchored — <code>^/api/part/$</code> prevents over-matching</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.35em;">UI — Key Fixes (React SPA)</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.22em;font-size:0.73rem;color:var(--text-muted);">
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span>Login via allauth headless API — <code>/api/auth/v1/auth/login</code></li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span><code>page.evaluate(fetch)</code> vs <code>page.fill()</code> — React state fix</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span>Chromium <code>.localhost</code> loopback → <code>anymus-ui</code> Nginx proxy</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span>Caddy strips token body → <code>INVENTREE_API_URL</code> bypasses proxy</li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span>Playwright browser cache — <code>load_dotenv(override=True)</code></li>
+          <li style="display:flex;gap:0.4em;"><span style="color:var(--purple);">✓</span>Headless in Docker — removed <code>--headed</code> from pipeline</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: Shift Left Loop -->
+  <section class="slide" data-slide="9">
+    <div class="label">The Full Shift Left Pipeline</div>
+    <h2>Quality at Every Step</h2>
+    <p class="subtitle" style="margin-bottom: 0.9em;">ANYMUS implements Shift Left as an end-to-end system — not just a collection of tests. Each step catches a different failure mode at the earliest possible moment.</p>
+
+    <div class="phase-flow">
+      <div class="phase-step done">
+        <div class="num">01</div>
+        <h3>AI Ingests Docs</h3>
+        <p>Live InvenTree docs → test cases generated before any code is touched. Coverage baseline exists from day one.</p>
+        <div class="cmd">Claude Code + docs.inventree.org</div>
+      </div>
+      <div class="phase-step done">
+        <div class="num">02</div>
+        <h3>Health Gate (D3)</h3>
+        <p>Health check runs first. If any critical endpoint is down, the suite skips — no false failures, no wasted CI.</p>
+        <div class="cmd">scripts/health_check.py → exit 0/1</div>
+      </div>
+      <div class="phase-step done">
+        <div class="num">03</div>
+        <h3>Contract Tests</h3>
+        <p>schemathesis auto-generates tests from the OpenAPI schema. API contract breaks surface before any UI test runs.</p>
+        <div class="cmd">test_schema_contract.py</div>
+      </div>
+      <div class="phase-step done">
+        <div class="num">04</div>
+        <h3>Mock Mode (D2)</h3>
+        <p>When infra is unavailable, <code>MOCK_MODE=true</code> activates. Same business logic, recorded fixtures, zero infrastructure.</p>
+        <div class="cmd">MOCK_MODE=true pytest test_part_mock.py</div>
+      </div>
+      <div class="phase-step done">
+        <div class="num">05</div>
+        <h3>Visual Baseline (D1)</h3>
+        <p>Playwright captures pixel-perfect baselines. CSS regressions and layout shifts fail the test — not just DOM selectors.</p>
+        <div class="cmd">toHaveScreenshot() → snapshots/</div>
+      </div>
+    </div>
+
+    <div style="margin-top:0.8em;background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-radius:10px;padding:0.85em 1.2em;">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5em;align-items:center;font-size:0.72rem;text-align:center;">
+        <div style="color:var(--accent);">Requirements<br><span style="color:var(--text-muted);">AI → test cases</span></div>
+        <div style="color:var(--text-muted);">→</div>
+        <div style="color:var(--accent2);">Contract<br><span style="color:var(--text-muted);">schemathesis</span></div>
+        <div style="color:var(--text-muted);">→</div>
+        <div style="color:var(--accent4);">Resilience<br><span style="color:var(--text-muted);">Mock mode</span></div>
+        <div style="color:var(--text-muted);">→</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5em;align-items:center;font-size:0.72rem;text-align:center;margin-top:0.4em;">
+        <div style="color:var(--accent);">Gate<br><span style="color:var(--text-muted);">Health check</span></div>
+        <div style="color:var(--text-muted);">→</div>
+        <div style="color:var(--purple);">Visual<br><span style="color:var(--text-muted);">Screenshots</span></div>
+        <div style="color:var(--text-muted);">→</div>
+        <div style="color:var(--accent2);">CI/CD<br><span style="color:var(--text-muted);">GitHub Actions</span></div>
+        <div style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:6px;padding:0.3em;color:var(--accent);font-weight:700;">QUALITY<br>CONTINUOUS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: Pipeline Orchestrator -->
+  <section class="slide" data-slide="10">
+    <div class="label">Pipeline Orchestration — run_pipeline.py</div>
+    <h2>One Command. All 6 Stages. Green.</h2>
+    <p class="subtitle" style="margin-bottom: 0.7em;"><code>run_pipeline.py</code> auto-detects venv binaries, conditionally adds Allure reporting, and halts on failure — containerized for portability via Docker.</p>
+
+    <div style="display:grid;grid-template-columns:1.15fr 0.85fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:11px;overflow:hidden;">
+          <div style="background:var(--bg-elevated);padding:0.45em 0.9em;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);">$ python scripts/run_pipeline.py --api-only --base-url http://inventree.localhost</div>
+          <div style="padding:0.75em 1em;font-family:'JetBrains Mono',monospace;font-size:0.67rem;line-height:1.85;color:var(--text-muted);">
+            <div style="color:var(--accent2);margin-bottom:0.2em;">Stage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tests&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status</div>
+            <div style="border-top:1px solid var(--border);margin-bottom:0.2em;"></div>
+            <div><span style="color:var(--accent);">✓  PASS</span>&nbsp;&nbsp;Env Check&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;—</div>
+            <div><span style="color:var(--accent);">✓  PASS</span>&nbsp;&nbsp;D3 Health Check&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6 endpoints</div>
+            <div><span style="color:var(--accent);">✓  PASS</span>&nbsp;&nbsp;Contract Tests&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;27 schemathesis</div>
+            <div><span style="color:var(--accent);">✓  PASS</span>&nbsp;&nbsp;API Suite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;166 tests</div>
+            <div><span style="color:var(--accent);">✓  PASS</span>&nbsp;&nbsp;D2 Mock Tests&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10 tests (offline)</div>
+            <div style="border-top:1px solid var(--border);margin-top:0.25em;padding-top:0.3em;color:var(--accent);font-weight:700;">ALL SYSTEMS GREEN — Pipeline passed ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.7em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.85em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Smart Orchestration</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.3em;font-size:0.77rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span> Auto-detects <code>.venv/bin/pytest</code> — no activation needed</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span> <code>--alluredir</code> only if allure-pytest installed</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span> Health gate halts entire pipeline on Stage 1 fail</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span> <code>--stage N</code> runs a single stage for debugging</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span> Generates unified Allure report at end</li>
+          </ul>
+        </div>
+        <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.25);border-radius:11px;padding:0.8em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.35em;">Docker — Run Anywhere</div>
+          <div style="font-size:0.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:0.4em;"><code>docker-compose.tests.yml</code> — attaches to InvenTree's network, healthwait sidecar blocks until proxy is ready, then launches full pipeline in a container.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.67rem;color:var(--accent2);">$ docker compose -f docker-compose.tests.yml up --build</div>
+        </div>
+        <div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:11px;padding:0.75em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3em;">Live Results Dashboard</div>
+          <div style="font-size:0.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:0.3em;">After every run, <code>anymus-dashboard</code> auto-refreshes at <code>http://localhost:9090</code> — stage cards turn green/red live. One click on <strong style="color:var(--purple);">AI Pulse</strong> calls <strong style="color:var(--accent);">EPAM DIAL</strong> (<code>ai-proxy.lab.epam.com</code>) to analyse results and return a natural-language quality report.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.67rem;color:var(--purple);">$ serve_dashboard.py → :9090 → EPAM DIAL → AI Pulse</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SLIDE 12: Docker Orchestration -->
+  <section class="slide" data-slide="11">
+    <div class="label">Containerised Deployment — Docker Compose Orchestration</div>
+    <h2>Two Stacks. One Network. Zero Setup.</h2>
+    <p class="subtitle" style="margin-bottom:0.6em;"><code>docker compose -f docker-compose.yml -f docker-compose.tests.yml up --build</code> — InvenTree + ANYMUS spin up together, health-gated, results shared via named volume.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;align-items:start;">
+      <!-- Left: architecture diagram -->
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.45em;">Container Topology — <code>inventree_default</code> network</div>
+        <div style="display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:11px;overflow:hidden;">
+          <!-- InvenTree stack -->
+          <div style="background:rgba(0,180,216,0.06);border-bottom:1px solid var(--border);padding:0.5em 0.8em;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3em;">InvenTree Stack (docker-compose.yml)</div>
+            <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+              <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent2);">🗄 inventree-db<br><span style="font-size:0.6rem;color:var(--text-muted);">PostgreSQL</span></div>
+              <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent2);">⚙️ inventree-server<br><span style="font-size:0.6rem;color:var(--text-muted);">Django :8000</span></div>
+              <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent2);">🔀 inventree-proxy<br><span style="font-size:0.6rem;color:var(--text-muted);">Caddy :80</span></div>
+            </div>
+          </div>
+          <!-- ANYMUS layer -->
+          <div style="background:rgba(0,229,160,0.04);padding:0.5em 0.8em;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3em;">ANYMUS Layer (docker-compose.tests.yml)</div>
+            <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+              <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.35);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent);">⏳ anymus-healthwait<br><span style="font-size:0.6rem;color:var(--text-muted);">polls until ready</span></div>
+              <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.35);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent);">🧪 anymus-tests<br><span style="font-size:0.6rem;color:var(--text-muted);">run_pipeline.py</span></div>
+              <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--purple);">🌐 anymus-ui<br><span style="font-size:0.6rem;color:var(--text-muted);">Nginx proxy</span></div>
+              <div style="background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.3);border-radius:7px;padding:0.35em 0.7em;font-size:0.72rem;color:var(--accent2);">📊 anymus-dashboard<br><span style="font-size:0.6rem;color:var(--text-muted);">:9090</span></div>
+            </div>
+          </div>
+          <!-- Shared volume -->
+          <div style="background:rgba(255,179,71,0.04);border-top:1px solid var(--border);padding:0.4em 0.8em;display:flex;align-items:center;gap:0.6em;">
+            <span style="font-size:0.85rem;">💾</span>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent4);">results_data</span> <span style="font-size:0.7rem;color:var(--text-muted);">— named volume shared by anymus-tests (write) and anymus-dashboard (read)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: key design decisions -->
+      <div style="display:flex;flex-direction:column;gap:0.7em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.85em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Startup Sequence</div>
+          <div style="display:flex;flex-direction:column;gap:0.28em;font-size:0.75rem;color:var(--text-muted);">
+            <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);min-width:1.2em;">①</span><span>InvenTree stack boots (db → server → proxy)</span></div>
+            <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);min-width:1.2em;">②</span><span><code>anymus-healthwait</code> polls <code>/api/</code> every 5s — blocks tests until 200 OK</span></div>
+            <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);min-width:1.2em;">③</span><span><code>anymus-ui</code> Nginx starts — proxies browser traffic with correct <code>Host</code> header</span></div>
+            <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);min-width:1.2em;">④</span><span><code>anymus-tests</code> runs 6-stage pipeline, writes <code>run-*.json</code> to volume</span></div>
+            <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);min-width:1.2em;">⑤</span><span><code>anymus-dashboard</code> auto-refreshes — reads results live as they arrive</span></div>
+          </div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.25);border-radius:11px;padding:0.85em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Key Engineering Decisions</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.28em;font-size:0.73rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span><span><code>.dockerignore</code> excludes macOS <code>.venv</code> — prevents wrong binaries in image</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span><span><code>INVENTREE_API_URL=inventree-server:8000</code> bypasses Caddy (which strips token auth)</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span><span><code>anymus-ui</code> Nginx exists solely to fix Chromium's <code>.localhost</code> loopback RFC 6761 bug</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">✓</span><span><code>DISPLAY=""</code> forces Playwright headless — no X server needed in container</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SLIDE 13: Dashboard + AI Pulse -->
+  <section class="slide" data-slide="12">
+    <div class="label">Live Results Dashboard — anymus-dashboard:9090</div>
+    <h2>Results Dashboard + AI Pulse Analysis</h2>
+    <p class="subtitle" style="margin-bottom:0.6em;">Every run writes <code>run-*.json</code> to a shared volume. The dashboard reads it live, shows stage pass/fail cards and run trends — then <strong style="color:var(--accent2);">EPAM DIAL</strong> analyses the results and delivers a natural-language AI Pulse.</p>
+
+    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:1em;align-items:start;">
+      <!-- Left: Dashboard sections -->
+      <div style="display:flex;flex-direction:column;gap:0.6em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;overflow:hidden;">
+          <div style="background:var(--bg-elevated);padding:0.4em 0.85em;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);">http://localhost:9090 · auto-refreshes every 10s</div>
+          <div style="padding:0.7em 0.9em;display:flex;flex-direction:column;gap:0.55em;">
+            <!-- Hero card -->
+            <div style="background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.3);border-radius:8px;padding:0.5em 0.8em;display:flex;justify-content:space-between;align-items:center;">
+              <div><div style="font-size:0.75rem;font-weight:700;color:var(--accent);">✓ PIPELINE PASS</div><div style="font-size:0.65rem;color:var(--text-muted);">Latest run · duration · Allure link</div></div>
+              <div style="display:flex;gap:0.4em;font-size:0.65rem;">
+                <span style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);padding:0.15em 0.5em;border-radius:4px;color:var(--accent);">6 Passed</span>
+                <span style="background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);padding:0.15em 0.5em;border-radius:4px;color:var(--accent3);">0 Failed</span>
+              </div>
+            </div>
+            <!-- Stage cards row -->
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.3em;">
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">Env</div></div>
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">D3 Gate</div></div>
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">Contract</div></div>
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">API Suite</div></div>
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">D2 Mock</div></div>
+              <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:6px;padding:0.3em;text-align:center;font-size:0.6rem;"><div style="color:var(--accent);">✓</div><div style="color:var(--text-muted);">UI</div></div>
+            </div>
+            <!-- Trend bars -->
+            <div style="display:flex;align-items:flex-end;gap:0.3em;height:28px;padding:0 0.2em;">
+              <div style="flex:1;background:rgba(0,229,160,0.35);border-radius:3px 3px 0 0;height:85%;"></div>
+              <div style="flex:1;background:rgba(255,107,107,0.35);border-radius:3px 3px 0 0;height:60%;"></div>
+              <div style="flex:1;background:rgba(0,229,160,0.35);border-radius:3px 3px 0 0;height:90%;"></div>
+              <div style="flex:1;background:rgba(0,229,160,0.35);border-radius:3px 3px 0 0;height:75%;"></div>
+              <div style="flex:1;background:rgba(0,229,160,0.45);border-radius:3px 3px 0 0;height:100%;"></div>
+              <div style="font-size:0.6rem;color:var(--text-muted);padding-left:0.3em;">Run trend →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: AI Pulse feature -->
+      <div style="display:flex;flex-direction:column;gap:0.7em;">
+        <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:11px;padding:0.9em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">AI Pulse — Powered by EPAM DIAL</div>
+          <div style="display:flex;flex-direction:column;gap:0.35em;font-size:0.75rem;color:var(--text-muted);">
+            <div style="display:flex;gap:0.5em;align-items:flex-start;"><span style="color:var(--accent);min-width:1.2em;">①</span><span>Enter EPAM DIAL API key in the dashboard UI</span></div>
+            <div style="display:flex;gap:0.5em;align-items:flex-start;"><span style="color:var(--accent);min-width:1.2em;">②</span><span>Click <strong style="color:var(--accent);">Test Connection</strong> — live model list loaded from <code>ai-proxy.lab.epam.com</code></span></div>
+            <div style="display:flex;gap:0.5em;align-items:flex-start;"><span style="color:var(--accent);min-width:1.2em;">③</span><span>Select model (Claude, GPT-4, etc.) — select filtered to capable models</span></div>
+            <div style="display:flex;gap:0.5em;align-items:flex-start;"><span style="color:var(--accent);min-width:1.2em;">④</span><span>Click <strong style="color:var(--accent);">Get AI Pulse</strong> — sends stage results + run metadata to DIAL</span></div>
+            <div style="display:flex;gap:0.5em;align-items:flex-start;"><span style="color:var(--accent);min-width:1.2em;">⑤</span><span>EPAM DIAL returns quality assessment: what passed, what failed, risk sentiment, recommended actions</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);border-radius:11px;padding:0.8em 1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.35em;">What the AI Pulse Delivers</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.25em;font-size:0.73rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span><span><strong style="color:var(--text);">Overall sentiment</strong> — PASS/FAIL/AT RISK with confidence</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span><span><strong style="color:var(--text);">Stage-by-stage</strong> analysis with root cause notes</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span><span><strong style="color:var(--text);">Trend assessment</strong> — improving / degrading across runs</span></li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span><span><strong style="color:var(--text);">Recommended actions</strong> — actionable next steps from AI</span></li>
+          </ul>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(255,179,71,0.25);border-radius:9px;padding:0.6em 0.85em;font-size:0.73rem;color:var(--text-muted);line-height:1.5;">
+          <strong style="color:var(--accent4);">Closes the agentic loop:</strong> AI generates tests → runs → dashboard reads results → AI analyses those results. Human reviews the sentiment report and decides the next action.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14: CI/CD -->
+  <section class="slide" data-slide="13">
+    <div class="label">CI/CD — GitHub Actions</div>
+    <h2>Every Push is Gated</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">Two parallel workflows — API tests include the D3 health check as step 1. UI tests gate on API health before any browser opens.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">api-tests.yml — API Automation</div>
+        <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.25);border-radius:10px;padding:0.8em 1em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.9;color:var(--text-muted);">
+          <div style="color:var(--text-muted);">on: push → [AgenticWorkflow, main]</div>
+          <div style="color:var(--text-muted);">on: pull_request → main</div>
+          <div style="border-top:1px solid var(--border);margin:0.3em 0;padding-top:0.3em;"></div>
+          <div style="color:var(--accent);">Step 1:</div>
+          <div>&nbsp;&nbsp;Install deps (requests, colorama, tabulate)</div>
+          <div>&nbsp;&nbsp;Start InvenTree via docker compose</div>
+          <div style="color:var(--accent);">Step 2 (D3 gate):</div>
+          <div>&nbsp;&nbsp;python scripts/health_check.py</div>
+          <div>&nbsp;&nbsp;continue-on-error: <span style="color:var(--accent3);">false</span></div>
+          <div style="color:var(--accent);">Step 3:</div>
+          <div>&nbsp;&nbsp;pytest tests/ -v --html=report.html</div>
+          <div style="color:var(--accent);">Step 4 (D2 mock):</div>
+          <div>&nbsp;&nbsp;MOCK_MODE=true pytest test_part_mock.py</div>
+          <div style="color:var(--accent);">Step 5:</div>
+          <div>&nbsp;&nbsp;Upload reports as artifacts</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">ui-tests.yml — UI Automation</div>
+        <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:0.8em 1em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.9;color:var(--text-muted);">
+          <div>on: push → [AgenticWorkflow, main]</div>
+          <div style="border-top:1px solid var(--border);margin:0.3em 0;padding-top:0.3em;"></div>
+          <div style="color:var(--purple);">conftest.py (autouse=True):</div>
+          <div>&nbsp;&nbsp;api_health_gate fixture runs first</div>
+          <div>&nbsp;&nbsp;Pings /api/part/ + /api/part/category/</div>
+          <div>&nbsp;&nbsp;If down → pytest.skip(session)</div>
+          <div style="color:var(--purple);">Step 1:</div>
+          <div>&nbsp;&nbsp;pytest tests/ -v --headed</div>
+          <div style="color:var(--purple);">Step 2 (D1 visual):</div>
+          <div>&nbsp;&nbsp;pytest test_visual_regression.py</div>
+          <div style="color:var(--purple);">Step 3:</div>
+          <div>&nbsp;&nbsp;Upload pytest-html + snapshots</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:0.7em;display:flex;gap:0.7em;flex-wrap:wrap;">
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:20px;padding:0.35em 0.9em;font-size:0.78rem;color:var(--accent);">✓ Health check step 1 — always</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:0.35em 0.9em;font-size:0.78rem;color:var(--text-muted);">Reports uploaded as CI artifacts</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:20px;padding:0.35em 0.9em;font-size:0.78rem;color:var(--accent2);">MOCK_MODE=true after live suite</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:0.35em 0.9em;font-size:0.78rem;color:var(--purple);">UI gated on API health</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 15: AI-Native -->
+  <section class="slide" data-slide="14">
+    <div class="label">AI-Native Engineering — CodemIE × Cursor × EPAM DIAL × Jira MCP</div>
+    <h2>Four AI Tools. One Unified Pipeline.</h2>
+    <p class="subtitle" style="margin-bottom: 0.8em;">ANYMUS was built with a coordinated AI toolchain — <strong style="color:var(--accent);">Claude Code via CodemIE</strong> for API tests, <strong style="color:var(--purple);">Cursor IDE</strong> for UI automation, <strong style="color:var(--accent2);">EPAM DIAL</strong> for live AI Pulse analysis, and <strong style="color:var(--accent4);">Jira MCP</strong> for requirements ingestion.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2em;align-items:start;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">Prompt-Driven Build Sessions</div>
+        <div style="display:flex;flex-direction:column;gap:0.3em;">
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-01</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Ingest InvenTree docs → generate 200+ test case IDs (API-P-001…)</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-02</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Scaffold <code>automation/api/</code> — conftest.py, fixtures, folder structure</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-03</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Write all 14 test modules from generated test case IDs</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-04</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Debug v1.3 failures — read error output, diagnosed endpoint migrations</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-05</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Add D2 Mock mode — <code>responses</code> library + fixture JSON files</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-06</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">D3 health check — standalone script + pytest session gate</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-07</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Build <code>run_pipeline.py</code>, Docker setup, Allure integration</span>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.18);border-radius:8px;padding:0.45em 0.9em;display:flex;gap:0.7em;align-items:flex-start;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);min-width:3em;flex-shrink:0;">S-08</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">CI/CD workflows, OpenAPI contract tests, demo slides</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.8em;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:0.9em 1.1em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5em;">AI-Native — Not Just AI-Assisted</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.4em;font-size:0.78rem;color:var(--text-muted);">
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span> Tests generated <em>before</em> code was written — true shift left</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span> AI fetched live OpenAPI schema, discovered v1.3 path changes</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span> AI diagnosed 129 failures from raw pytest output in one session</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span> Zero to green pipeline in under 48 hours</li>
+            <li style="display:flex;gap:0.5em;"><span style="color:var(--accent2);">→</span> <code>CLAUDE.md</code> project instructions persist context across sessions</li>
+          </ul>
+        </div>
+        <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-radius:11px;padding:0.85em 1em;font-size:0.8rem;color:var(--text-muted);line-height:1.55;">
+          <strong style="color:var(--accent);">The result:</strong> A production-grade shift-left QA pipeline — 166 API tests, 27 contract tests, 10 mock tests, 28 UI tests, 4 visual baselines, 3 differentiators, containerized Docker deployment, unified Allure reporting — built entirely through agentic AI collaboration.
+        </div>
+        <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.25);border-radius:9px;padding:0.7em 0.9em;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5em;">
+            <div style="text-align:center;"><div style="font-size:0.72rem;color:var(--accent);font-weight:600;">CodemIE</div><div style="font-size:0.65rem;color:var(--text-muted);">Claude Code · API tests</div></div>
+            <div style="text-align:center;"><div style="font-size:0.72rem;color:var(--purple);font-weight:600;">Cursor IDE</div><div style="font-size:0.65rem;color:var(--text-muted);">Claude Code · UI tests</div></div>
+            <div style="text-align:center;"><div style="font-size:0.72rem;color:var(--accent2);font-weight:600;">EPAM DIAL</div><div style="font-size:0.65rem;color:var(--text-muted);">ai-proxy.lab.epam.com · AI Pulse</div></div>
+            <div style="text-align:center;"><div style="font-size:0.72rem;color:var(--accent4);font-weight:600;">Jira MCP</div><div style="font-size:0.65rem;color:var(--text-muted);">Atlassian MCP · 44 stories</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 16: AI Toolchain Architecture -->
+  <section class="slide" data-slide="15">
+    <div class="label">AI Toolchain — CodemIE · Cursor · EPAM DIAL · Jira MCP · GitHub Actions</div>
+    <h2>AI Embedded at Every Layer</h2>
+    <p class="subtitle" style="margin-bottom: 0.55em;">Six tools, zero boilerplate — from Jira user story to live AI Pulse. Every layer has a specific AI tool doing real work.</p>
+
+    <div style="display:flex;flex-direction:column;gap:0.38em;">
+
+      <!-- Layer 1: Requirements -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(255,179,71,0.35);">
+        <div style="background:rgba(255,179,71,0.09);border-right:1px solid rgba(255,179,71,0.25);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent4);text-transform:uppercase;letter-spacing:0.1em;">AI Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent4);">CodemIE Assistant</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent4);">+ Jira MCP</div>
+        </div>
+        <div style="background:rgba(255,179,71,0.04);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">REQUIREMENTS &amp; CONTEXT</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">CodemIE Assistant generates User Stories + Test Cases from product specs. Jira MCP pulls open stories into the dev session — Claude Code reads them as context before writing any test.</div>
+        </div>
+        <div style="background:rgba(255,179,71,0.07);border-left:1px solid rgba(255,179,71,0.2);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--accent4);font-family:'JetBrains Mono',monospace;">→ User stories in Jira</div>
+          <div style="font-size:0.67rem;color:var(--accent4);font-family:'JetBrains Mono',monospace;">→ Test case IDs (API-P-XXX)</div>
+          <div style="font-size:0.67rem;color:var(--accent4);font-family:'JetBrains Mono',monospace;">→ Context-driven dev</div>
+        </div>
+      </div>
+
+      <!-- Layer 2: Test Design -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(0,229,160,0.3);">
+        <div style="background:rgba(0,229,160,0.07);border-right:1px solid rgba(0,229,160,0.2);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;">AI Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent);">Claude Code</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">via CodemIE</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.03);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">TEST DESIGN — SHIFT LEFT</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">Fetches live OpenAPI schema (<code>/api/schema/</code>), ingests InvenTree docs, and generates 200+ test case IDs <em>before any code is written</em>. True shift left — coverage baseline from day one.</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.06);border-left:1px solid rgba(0,229,160,0.15);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ api-manual-tests.md</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ 200+ test IDs mapped</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ Schema constraints captured</div>
+        </div>
+      </div>
+
+      <!-- Layer 3: API Automation -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(0,229,160,0.3);">
+        <div style="background:rgba(0,229,160,0.07);border-right:1px solid rgba(0,229,160,0.2);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;">AI Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent);">Claude Code</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">via CodemIE</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.03);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">API AUTOMATION — D2 + D3</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">Writes 14 test modules, conftest fixtures, D3 health check, D2 mock mode, pipeline orchestrator, Docker setup — and diagnosed 129 v1.3 failures from raw pytest output in one session.</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.06);border-left:1px solid rgba(0,229,160,0.15);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ 166 tests passing</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ D2 Mock + D3 Health</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ run_pipeline.py</div>
+        </div>
+      </div>
+
+      <!-- Layer 4: UI Automation -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(167,139,250,0.35);">
+        <div style="background:rgba(167,139,250,0.07);border-right:1px solid rgba(167,139,250,0.2);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;">AI Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--purple);">Cursor IDE</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">Claude Code + AI autocomplete</div>
+        </div>
+        <div style="background:rgba(167,139,250,0.03);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">UI AUTOMATION — D1 VISUAL</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">Claude Code in Cursor IDE scaffolds Playwright Page Objects, generates selector logic, fixes InvenTree v1.3 allauth login flow, and creates visual regression tests. <code>toHaveScreenshot()</code> baselines committed — no raw selectors in test files.</div>
+        </div>
+        <div style="background:rgba(167,139,250,0.07);border-left:1px solid rgba(167,139,250,0.15);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--purple);font-family:'JetBrains Mono',monospace;">→ Playwright test suite</div>
+          <div style="font-size:0.67rem;color:var(--purple);font-family:'JetBrains Mono',monospace;">→ 4 visual baselines</div>
+          <div style="font-size:0.67rem;color:var(--purple);font-family:'JetBrains Mono',monospace;">→ Page Object Model</div>
+        </div>
+      </div>
+
+      <!-- Layer 5: Pipeline + Reporting -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(0,180,216,0.35);">
+        <div style="background:rgba(0,180,216,0.07);border-right:1px solid rgba(0,180,216,0.2);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;">Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent2);">Claude Code</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">GitHub Actions · Docker</div>
+        </div>
+        <div style="background:rgba(0,180,216,0.03);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">PIPELINE ORCHESTRATION + CI/CD</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">Claude Code writes the 6-stage orchestrator and Docker Compose setup. GitHub Actions runs the full pipeline on every push — health gate → contract → API suite → mock → UI → visual.</div>
+        </div>
+        <div style="background:rgba(0,180,216,0.07);border-left:1px solid rgba(0,180,216,0.15);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;">→ Allure unified report</div>
+          <div style="font-size:0.67rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;">→ Docker containerized</div>
+          <div style="font-size:0.67rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;">→ GitHub Actions CI/CD</div>
+        </div>
+      </div>
+
+      <!-- Layer 6: AI Pulse — EPAM DIAL -->
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:0;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid rgba(0,229,160,0.45);">
+        <div style="background:rgba(0,229,160,0.09);border-right:1px solid rgba(0,229,160,0.25);padding:0.6em 0.9em;display:flex;flex-direction:column;gap:0.25em;justify-content:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;">AI Tools</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent);">EPAM DIAL</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">ai-proxy.lab.epam.com</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.03);padding:0.6em 1em;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:0.2em;">AI PULSE — LIVE RESULTS ANALYSIS</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.45;">After every run, the live dashboard at <code>localhost:9090</code> connects to EPAM DIAL (<code>ai-proxy.lab.epam.com</code>) to analyse run results. The AI Pulse reads stage outcomes and provides a natural-language quality assessment — closing the agentic loop.</div>
+        </div>
+        <div style="background:rgba(0,229,160,0.07);border-left:1px solid rgba(0,229,160,0.2);padding:0.6em 0.85em;display:flex;flex-direction:column;gap:0.18em;justify-content:center;min-width:160px;">
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ Chat completion API</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ Run analysis prompt</div>
+          <div style="font-size:0.67rem;color:var(--accent);font-family:'JetBrains Mono',monospace;">→ Natural-lang report</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;align-items:center;">
+      <div style="font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">TOOLS:</div>
+      <div style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--accent4);">CodemIE</div>
+      <div style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--accent4);">Jira MCP</div>
+      <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--accent);">Claude Code</div>
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--purple);">Cursor IDE</div>
+      <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.35);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--accent);">EPAM DIAL</div>
+      <div style="background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.3);border-radius:20px;padding:0.25em 0.8em;font-size:0.72rem;color:var(--accent2);">GitHub Actions</div>
+      <div style="margin-left:auto;font-size:0.72rem;color:var(--text-muted);font-style:italic;">Every layer. Every tool.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 17: Live Demo -->
+  <section class="slide" data-slide="16" id="slide-demo">
+    <div class="label">Live Demo</div>
+    <h2>ANYMUS in Action</h2>
+    <p class="subtitle" style="margin-bottom: 0.6em;">Three demo sequences, each highlighting a differentiator. InvenTree running in Docker locally via Caddy on <code>http://inventree.localhost</code>.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.8em;margin:0.6em 0;">
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:0.9em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent);margin-bottom:0.3em;">DEMO 1 — D3 Health Check</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);">Run health check → see colored table → kill InvenTree → see gate trigger → restart.</p>
+        <div style="margin-top:0.5em;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--accent);">python scripts/health_check.py</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:10px;padding:0.9em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent2);margin-bottom:0.3em;">DEMO 2 — Full API Suite</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);">166 tests pass across 14 modules. Show the HTML report. Then switch to mock mode — 10 more pass, zero network calls.</p>
+        <div style="margin-top:0.5em;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--accent2);">pytest tests/ --html=report.html</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.3);border-radius:10px;padding:0.9em 1em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--purple);margin-bottom:0.3em;">DEMO 3 — UI + Visual</div>
+        <p style="font-size:0.78rem;color:var(--text-muted);">Run Playwright suite headed — browser visible. Then visual regression tests with baseline comparison.</p>
+        <div style="margin-top:0.5em;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--purple);">pytest tests/ -v --headed</div>
+      </div>
+    </div>
+
+    <div class="demo-break" onclick="openDemo('anymus')">
+      <span class="icon">▶</span>
+      <span class="text">Open demo script</span>
+      <span class="click-hint">click to expand</span>
+    </div>
+
+    <div style="margin-top:0.6em;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.6em 1em;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);line-height:1.7;">
+      <span style="color:var(--accent);">$</span> cd ANYMUS && python scripts/health_check.py --base-url http://inventree.localhost
+      <span style="margin-left:1em;color:var(--text-muted);"># D3 gate</span>
+      <br><span style="color:var(--accent);">$</span> cd automation/api && source .venv/bin/activate && pytest tests/ --ignore=tests/test_schema_contract.py
+      <span style="margin-left:1em;color:var(--accent);"># 166 passed</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 18: Full System Architecture -->
+  <section class="slide" data-slide="17">
+    <div class="label">ANYMUS — EPAM ADLC Alignment · System Architecture</div>
+    <h2 style="margin-bottom:0.35em;">End-to-End Agentic QA Architecture</h2>
+    <p class="subtitle" style="font-size:0.9rem;margin-bottom:0.6em;">Six ADLC stages — one coherent pipeline. Every artefact has a phase. Every phase has a quality gate.</p>
+
+    <div style="display:grid;grid-template-columns:68px 1fr 68px;gap:0.35em 0.6em;align-items:stretch;">
+
+      <!-- ── ROW 1: Phase labels left | Context layer | D-label right ── -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:0.2em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;line-height:1.3;">Phase 0<br>+ Stage 1</div>
+      </div>
+      <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.25);border-radius:10px;padding:0.55em 0.8em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Context Engineering — Strategic Intent &amp; Ingestion</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.4em;">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.5em 0.6em;text-align:center;">
+            <div style="font-size:0.75rem;margin-bottom:0.15em;">🏷️</div>
+            <div style="font-size:0.72rem;font-weight:600;color:var(--accent);">Jira MCP</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">44 user stories<br>EPMCDMETST-37840+</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.5em 0.6em;text-align:center;">
+            <div style="font-size:0.75rem;margin-bottom:0.15em;">📄</div>
+            <div style="font-size:0.72rem;font-weight:600;color:var(--accent);">InvenTree Docs</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">Parts + API schema<br>live ingestion</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.5em 0.6em;text-align:center;">
+            <div style="font-size:0.75rem;margin-bottom:0.15em;">⚙️</div>
+            <div style="font-size:0.72rem;font-weight:600;color:var(--accent2);">CLAUDE.md</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">Agent context brief<br>persists every session</div>
+          </div>
+          <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.4);border-radius:8px;padding:0.5em 0.6em;text-align:center;">
+            <div style="font-size:0.75rem;margin-bottom:0.15em;">🤖</div>
+            <div style="font-size:0.72rem;font-weight:600;color:var(--accent);">Claude Code</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">claude-sonnet-4-6<br>via CodemIE</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);text-align:center;line-height:1.3;">Context<br>Eng.</div>
+      </div>
+
+      <!-- Connector -->
+      <div></div>
+      <div style="text-align:center;color:var(--text-muted);font-size:0.9rem;line-height:1;">▼</div>
+      <div></div>
+
+      <!-- ── ROW 2: Stage 2-3 | Generation | D-label ── -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;line-height:1.3;">Stage<br>2–3</div>
+      </div>
+      <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.25);border-radius:10px;padding:0.55em 0.8em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Agentic Implementation — 13 Structured Prompts → Generated Artefacts</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.4em;">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.45em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--accent2);margin-bottom:0.2em;">test-cases/</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);line-height:1.4;">74 API manual tests<br>50 UI manual tests<br>54 curated auto-targets</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.45em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--accent2);margin-bottom:0.2em;">automation/api/</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);line-height:1.4;">14 test files · 166 tests<br>27 contract tests<br>10 mock tests (D2)</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.45em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--accent2);margin-bottom:0.2em;">automation/ui/</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);line-height:1.4;">5 Page Objects (POM)<br>32 UI tests<br>4 visual baselines (D1)</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);text-align:center;line-height:1.3;">Design +<br>Impl.</div>
+      </div>
+
+      <!-- Connector -->
+      <div></div>
+      <div style="text-align:center;color:var(--text-muted);font-size:0.9rem;line-height:1;">▼</div>
+      <div></div>
+
+      <!-- ── ROW 3: Stage 4-5 | Execution Pipeline | Differentiators ── -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;line-height:1.3;">Stage<br>4–5</div>
+      </div>
+      <div style="background:rgba(255,179,71,0.04);border:1px solid rgba(255,179,71,0.25);border-radius:10px;padding:0.55em 0.8em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Self-Evaluation + Orchestration — scripts/run_pipeline.py · 7 Stages</div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.3em;align-items:stretch;">
+          <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.4);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.62rem;font-weight:700;color:var(--accent);margin-bottom:0.1em;">D3</div>
+            <div style="font-size:0.6rem;color:var(--text-muted);line-height:1.3;">Health<br>Gate</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.6rem;font-weight:600;color:var(--accent2);margin-bottom:0.1em;">Contract</div>
+            <div style="font-size:0.58rem;color:var(--text-muted);line-height:1.3;">schema-<br>thesis</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.6rem;font-weight:600;color:var(--accent2);margin-bottom:0.1em;">API Suite</div>
+            <div style="font-size:0.58rem;color:var(--text-muted);line-height:1.3;">pytest<br>+requests</div>
+          </div>
+          <div style="background:rgba(0,180,216,0.07);border:1px solid rgba(0,180,216,0.3);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.62rem;font-weight:700;color:var(--accent2);margin-bottom:0.1em;">D2</div>
+            <div style="font-size:0.6rem;color:var(--text-muted);line-height:1.3;">Mock<br>Mode</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.6rem;font-weight:600;color:var(--purple);margin-bottom:0.1em;">UI Suite</div>
+            <div style="font-size:0.58rem;color:var(--text-muted);line-height:1.3;">Play-<br>wright</div>
+          </div>
+          <div style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.3);border-radius:7px;padding:0.4em 0.3em;text-align:center;">
+            <div style="font-size:0.62rem;font-weight:700;color:var(--purple);margin-bottom:0.1em;">D1</div>
+            <div style="font-size:0.6rem;color:var(--text-muted);line-height:1.3;">Visual<br>Regr.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);text-align:center;line-height:1.3;">Eval +<br>Deploy</div>
+      </div>
+
+      <!-- Connector -->
+      <div></div>
+      <div style="text-align:center;color:var(--text-muted);font-size:0.9rem;line-height:1;">▼</div>
+      <div></div>
+
+      <!-- ── ROW 4: Stage 6 | Observability | Roadmap ── -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;line-height:1.3;">Stage<br>6</div>
+      </div>
+      <div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:0.55em 0.8em;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4em;">Monitoring &amp; Feedback — Observability Layer</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4em;">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.4em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--purple);margin-bottom:0.15em;">Allure Reports</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">HTTP capture · feature tags<br>allure-report:5050</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.4em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--purple);margin-bottom:0.15em;">pytest-html</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">Self-contained report<br>shareable artifact</div>
+          </div>
+          <div style="background:rgba(255,107,107,0.05);border:1px dashed rgba(255,107,107,0.3);border-radius:8px;padding:0.4em 0.6em;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--accent3);margin-bottom:0.15em;">🔲 AI Narrative</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);">Roadmap: agent reads<br>results → interprets</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);text-align:center;line-height:1.3;">Monitor<br>+Loop</div>
+      </div>
+
+    </div><!-- end grid -->
+
+    <div style="margin-top:0.5em;display:flex;gap:0.6em;justify-content:flex-end;align-items:center;flex-wrap:wrap;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--text-muted);">7/8 ADLC maturity indicators complete</span>
+      <span style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:6px;padding:0.2em 0.6em;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent);">D3 ✓</span>
+      <span style="background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.3);border-radius:6px;padding:0.2em 0.6em;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent2);">D2 ✓</span>
+      <span style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:6px;padding:0.2em 0.6em;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--purple);">D1 ✓</span>
+      <span style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:6px;padding:0.2em 0.6em;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent4);">D4 ADLC ✓</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 19: Agent Artefacts — Documentation Today → Runtime Tomorrow -->
+  <section class="slide" data-slide="18">
+    <div class="label">Agent Artefacts — Current State vs Roadmap</div>
+    <h2 style="margin-bottom:0.3em;">From Documentation to Execution</h2>
+    <p class="subtitle" style="font-size:0.9rem;margin-bottom:0.7em;">These files are the <em style="color:var(--accent);">agentic memory</em> of ANYMUS. One is already live at runtime. The others are the roadmap — they graduate from documentation to execution.</p>
+
+    <div style="display:flex;flex-direction:column;gap:0.45em;">
+
+      <!-- CLAUDE.md — LIVE -->
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0.8em;align-items:center;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.4);border-radius:10px;padding:0.6em 1em;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:700;color:var(--accent);">CLAUDE.md</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">Agent context brief</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6em;">
+          <span style="background:rgba(0,229,160,0.15);border:1px solid var(--accent);border-radius:20px;padding:0.2em 0.7em;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--accent);white-space:nowrap;">✓ LIVE NOW</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Claude Code reads this at every session start — business rules, selectors, API behaviours</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--accent);font-style:italic;">The real-time agent config.<br>Already a runtime artefact.</div>
+      </div>
+
+      <!-- system-instructions.md — DOCS → ROADMAP R1 -->
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.6em 1em;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--accent2);">system-instructions.md</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">Agent session bootstrap</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6em;">
+          <span style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:0.2em 0.7em;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);white-space:nowrap;">DOCS TODAY</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Bootstrap instructions given to Claude Code; documents 6 constraints, 3 differentiators, v1.3.0 learnings</span>
+        </div>
+        <div style="background:rgba(255,107,107,0.05);border:1px dashed rgba(255,107,107,0.3);border-radius:8px;padding:0.4em 0.6em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent3);margin-bottom:0.1em;">🔲 ROADMAP R1</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">→ System prompt for AI Test Analyst<br><code>scripts/generate_report_narrative.py</code></div>
+        </div>
+      </div>
+
+      <!-- prompts.md — DOCS → ROADMAP R2 -->
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.6em 1em;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--accent2);">agents/prompts.md</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">13 prompts historical log</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6em;">
+          <span style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:0.2em 0.7em;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);white-space:nowrap;">DOCS TODAY</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Complete record of all 13 prompts used — API sessions S-01..S-08 + UI sessions A-01..A-05 with outputs</span>
+        </div>
+        <div style="background:rgba(255,107,107,0.05);border:1px dashed rgba(255,107,107,0.3);border-radius:8px;padding:0.4em 0.6em;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--accent3);margin-bottom:0.1em;">🔲 ROADMAP R2</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">→ Parameterized re-runnable templates<br><code>scripts/regenerate_tests.py</code></div>
+        </div>
+      </div>
+
+      <!-- ADLC_ALIGNMENT.md — DOCS + FUTURE framework ref -->
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.6em 1em;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--accent4);">ADLC_ALIGNMENT.md</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">Framework alignment</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6em;">
+          <span style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:0.2em 0.7em;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);white-space:nowrap;">DOCS TODAY</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Maps ANYMUS to EPAM ADLC phases. Agentic maturity 7/8. Roadmap for R1–R4.</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--accent4);padding:0.4em 0.6em;">Framework alignment reference.<br>Shows intentional ADLC design.</div>
+      </div>
+
+      <!-- SHIFT_LEFT_STRATEGY.md — DOCS -->
+      <div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0.8em;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.6em 1em;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--text-muted);">SHIFT_LEFT_STRATEGY.md</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);">+ README.md</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6em;">
+          <span style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:0.2em 0.7em;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);white-space:nowrap;">DOCS TODAY</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Five Shift Left principles + ADLC section. Narrative for human readers and reviewers.</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-muted);padding:0.4em 0.6em;">Permanent narrative documentation.<br>No runtime role planned.</div>
+      </div>
+
+    </div><!-- end rows -->
+
+    <div style="margin-top:0.6em;background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-radius:8px;padding:0.6em 1em;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+      <strong style="color:var(--accent);">Key insight:</strong>
+      <code>CLAUDE.md</code> shows the pattern that <code>system-instructions.md</code> will follow on the roadmap —
+      a file that starts as documentation becomes a live runtime artefact when wired into <code>scripts/generate_report_narrative.py</code>.
+      <strong style="color:var(--text);">The agent files graduate from explaining what happened to driving what happens next.</strong>
+    </div>
+  </section>
+
+
+  <!-- SLIDE 20: Team -->
+  <section class="slide" data-slide="19">
+    <div class="label">The Team — QAHub AI Hackathon 2026</div>
+    <h2>Built By</h2>
+    <p class="subtitle" style="margin-bottom:1em;">Two QA engineers, two AI IDEs, one unified pipeline. Each person owned a domain — both delivered together.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5em;align-items:start;">
+
+      <!-- Siva -->
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.35);border-radius:14px;padding:1.2em 1.4em;">
+        <div style="display:flex;align-items:center;gap:0.8em;margin-bottom:0.8em;">
+          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:var(--bg);flex-shrink:0;">S</div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--text);">Sivasankaramalan Gunasekarasivam</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent);">API Automation · Pipeline · Agentic Lead</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3em;font-size:0.76rem;color:var(--text-muted);">
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>All 14 API test modules — 166 tests, 27 contract, 10 mock</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>D3 Pre-flight Health Gate (<code>health_check.py</code> + pytest gate)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>D2 Mock API Mode (<code>responses</code> library + 5 JSON fixtures)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>6-stage pipeline orchestrator (<code>run_pipeline.py</code>)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>Full Docker Compose setup — multi-container, shared volume</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>Live results dashboard + EPAM DIAL AI Pulse integration</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>Agentic orchestrator (<code>qa_orchestrator_agent.py</code>)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--accent);">✓</span><span>EPAM ADLC alignment, demo slides, project documentation</span></div>
+        </div>
+        <div style="margin-top:0.8em;display:flex;gap:0.5em;flex-wrap:wrap;">
+          <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--accent);">CodemIE</div>
+          <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--accent);">Claude Code</div>
+          <div style="background:rgba(255,179,71,0.08);border:1px solid rgba(255,179,71,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--accent4);">EPAM DIAL</div>
+          <div style="background:rgba(255,179,71,0.08);border:1px solid rgba(255,179,71,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--accent4);">Jira MCP</div>
+        </div>
+      </div>
+
+      <!-- Abhishek -->
+      <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.35);border-radius:14px;padding:1.2em 1.4em;">
+        <div style="display:flex;align-items:center;gap:0.8em;margin-bottom:0.8em;">
+          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:var(--bg);flex-shrink:0;">A</div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--text);">Abhishek</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--purple);">UI Automation · Visual Regression · D1 Lead</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3em;font-size:0.76rem;color:var(--text-muted);">
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>5 Playwright UI test modules — 28 UI tests end-to-end</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>D1 Visual Regression — 4 pixel-perfect baseline screenshots</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>Page Object Model — 6 page objects, zero raw selectors in test files</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>InvenTree v1.3 allauth login flow (<code>fetch()</code> API via Playwright evaluate)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>Playwright browser cache fix (<code>load_dotenv(override=True)</code>)</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>D3 health gate in UI <code>conftest.py</code> — <code>api_health_gate</code> autouse fixture</span></div>
+          <div style="display:flex;gap:0.5em;"><span style="color:var(--purple);">✓</span><span>Cross-functional test — end-to-end Part lifecycle via browser + API</span></div>
+        </div>
+        <div style="margin-top:0.8em;display:flex;gap:0.5em;flex-wrap:wrap;">
+          <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--purple);">Cursor IDE</div>
+          <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--purple);">Claude Code</div>
+          <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:20px;padding:0.25em 0.75em;font-size:0.68rem;color:var(--purple);">Playwright</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1em;background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.2);border-radius:10px;padding:0.7em 1.2em;display:flex;gap:1.5em;align-items:center;flex-wrap:wrap;">
+      <div style="font-size:0.78rem;color:var(--text-muted);">Shared foundation:</div>
+      <div style="font-size:0.78rem;color:var(--text);">InvenTree v1.3 on Docker Compose · EPAM ADLC framework · GitHub Actions CI · Allure reporting</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent);">QAHub AI Hackathon 2026</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 21: Closing -->
+  <section class="slide title-slide" data-slide="20">
+    <div class="label">Thank You — QAHub AI Hackathon 2026</div>
+    <h1>ANYMUS</h1>
+    <p class="subtitle" style="font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--accent); margin-top: 0.2em;">AI-Native Shift Left QA Pipeline</p>
+    <p class="subtitle" style="margin-top: 0.8em;">
+      Three differentiators, one pipeline. Testing starts before code is written, resilience means it never stops, and visual baselines catch what DOM assertions miss.
+    </p>
+
+    <div style="margin-top:1.5em;display:grid;grid-template-columns:repeat(3,1fr);gap:0.8em;max-width:700px;">
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:0.7em 0.9em;text-align:center;">
+        <div style="color:var(--accent);font-weight:700;font-size:0.85rem;margin-bottom:0.2em;">D3 — Health Gate</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">6/6 endpoints ✓ ALL SYSTEMS GO</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,180,216,0.3);border-radius:10px;padding:0.7em 0.9em;text-align:center;">
+        <div style="color:var(--accent2);font-weight:700;font-size:0.85rem;margin-bottom:0.2em;">D2 — Mock Mode</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">10 tests offline, 0 network calls</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid rgba(167,139,250,0.3);border-radius:10px;padding:0.7em 0.9em;text-align:center;">
+        <div style="color:var(--purple);font-weight:700;font-size:0.85rem;margin-bottom:0.2em;">D1 — Visual</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">4 baseline screenshots committed</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0.9em;margin-top:1.4em;flex-wrap:wrap;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:0.45em 1.1em;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent);">📁 automation/api/ — 166 passed</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:0.45em 1.1em;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--purple);">📁 automation/ui/ — Playwright + D1</div>
+      <div style="background:var(--bg-card);border:1px solid rgba(0,229,160,0.3);border-radius:20px;padding:0.45em 1.1em;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent2);">🚀 .github/workflows/ — CI/CD live</div>
+    </div>
+
+    <p style="margin-top:2em;font-size:0.85rem;color:var(--text-muted);">QAHub AI Hackathon 2026 &mdash; April 14 &mdash; ANYMUS &mdash; Built with Claude Code via CodemIE</p>
+  </section>
+
+</div>
+
+<!-- Demo Modal -->
+<div class="demo-modal-overlay" id="demoOverlay" onclick="handleOverlayClick(event)">
+  <div class="demo-modal" id="demoModal">
+    <button class="demo-modal-close" onclick="closeDemo()">&#x2715;</button>
+    <div id="demoContent"></div>
+  </div>
+</div>
+
+<script>
+const DEMOS = {
+  anymus: {
+    title: 'ANYMUS Live Demo Script',
+    goal: 'Show all three differentiators in sequence — D3 gate, D2 mock mode, D1 visual regression',
+    steps: [
+      {
+        num: 'SETUP',
+        body: 'Ensure InvenTree is running via Docker Compose. Check <code>http://inventree.localhost/api/</code> in browser — should return JSON. Navigate to <code>automation/api/</code> and activate the venv: <code>source .venv/bin/activate</code>.'
+      },
+      {
+        num: 'D3 — 01',
+        body: '<strong>Run the health check script standalone:</strong>',
+        prompt: 'python scripts/health_check.py --base-url http://inventree.localhost'
+      },
+      {
+        num: 'D3 — 02',
+        body: 'Walk through the output — colored table, 6/6 endpoints healthy, latency per endpoint. Open <code>health_report.json</code> to show the machine-readable output. <em>"This is Step 1 of our CI pipeline — if any endpoint returns 500 or refuses connection, all tests skip. No wasted CI minutes."</em>'
+      },
+      {
+        num: 'D3 — 03',
+        body: 'Open <code>automation/api/tests/test_meta_health.py</code> and show the <code>api_health_gate</code> session fixture in <code>conftest.py</code>. Point out: <em>"This runs before every test, autouse=True. Infrastructure failure cannot masquerade as a test failure."</em>'
+      },
+      {
+        num: 'API — 04',
+        body: '<strong>Run the full API test suite:</strong>',
+        prompt: 'cd automation/api && pytest tests/ --ignore=tests/test_schema_contract.py --html=report.html --self-contained-html -q'
+      },
+      {
+        num: 'API — 05',
+        body: '<strong>While running, explain the test architecture:</strong> 14 test modules covering CRUD, filtering, BOM, parameters, revisions, categories, attachments, notes. Each fixture uses UUID suffix to avoid uniqueness conflicts. Every part creation gets <code>active=False</code> before deletion — that\'s a v1.3 discovery we made by running against the real API. <em>"The AI adapted to the actual running instance, not docs assumptions."</em>'
+      },
+      {
+        num: 'API — 06',
+        body: 'Open <code>automation/api/report.html</code> in browser. Show the 166 passed, walk through a few test names. Point out the test IDs (API-P-XXX). <em>"Every test ID maps back to a user story."</em>'
+      },
+      {
+        num: 'D2 — 07',
+        body: '<strong>Switch to mock mode — testing without any server:</strong>',
+        prompt: 'MOCK_MODE=true pytest tests/test_part_mock.py -v'
+      },
+      {
+        num: 'D2 — 08',
+        body: 'Show: 10 passed in under 1 second, zero network calls. Open <code>automation/api/mocks/part_list.json</code> — "This is the recorded response. The <code>responses</code> library intercepts HTTP calls and replays this. <em>Testing never stops, even in a total outage or offline dev environment.</em>"'
+      },
+      {
+        num: 'D1 — 09',
+        body: 'Switch to the UI test terminal. Run Playwright headed so browser is visible:',
+        prompt: 'cd automation/ui && pytest tests/test_visual_regression.py -v --headed'
+      },
+      {
+        num: 'D1 — 10',
+        body: 'Show the browser opening, navigating to Part Detail, taking the screenshot. Then open <code>automation/ui/snapshots/</code> — show the PNG baselines. <em>"On the next CI run, any pixel-level deviation from this baseline fails the test. CSS changes, layout shifts, component regressions — all caught before they reach production."</em>'
+      }
+    ],
+    tip: 'The closing message: ANYMUS demonstrates that Shift Left is not a philosophy — it\'s a concrete system. AI generates tests before code. Health checks prevent false failures. Mock mode ensures resilience. Visual baselines catch what selectors cannot. Every commit is gated.'
+  }
+};
+
+function openDemo(type) {
+  const data = DEMOS[type];
+  let html = `<h3>${data.title}</h3><div class="demo-goal">${data.goal}</div><ol class="demo-steps">`;
+  data.steps.forEach(s => {
+    html += `<li><span class="step-num">${s.num}</span><div class="step-body">${s.body}${s.prompt ? `<div class="prompt-box">${s.prompt}</div>` : ''}</div></li>`;
+  });
+  html += `</ol>`;
+  if (data.tip) html += `<div class="demo-tip">💡 <strong>Presenter tip:</strong> ${data.tip}</div>`;
+  document.getElementById('demoContent').innerHTML = html;
+  document.getElementById('demoOverlay').classList.add('open');
+}
+
+function closeDemo() { document.getElementById('demoOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('demoOverlay')) closeDemo(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDemo(); });
+
+(function () {
+  const deck = document.getElementById('deck');
+  const slides = Array.from(deck.querySelectorAll('.slide'));
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  const total = slides.length;
+  let current = 0;
+
+  function update() {
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'exit-left');
+      if (i < current) s.classList.add('exit-left');
+    });
+    slides[current].classList.add('active');
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    counter.textContent = (current + 1) + ' / ' + total;
+  }
+
+  function next() { if (current < total - 1) { current++; update(); } }
+  function prev() { if (current > 0) { current--; update(); } }
+
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('demoOverlay').classList.contains('open')) return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); current = 0; update(); }
+    else if (e.key === 'End') { e.preventDefault(); current = total - 1; update(); }
+  });
+
+  let touchStartX = 0;
+  deck.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  deck.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

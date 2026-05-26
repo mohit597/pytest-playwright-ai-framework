@@ -1,0 +1,787 @@
+{
+  "project": "ANYMUS — InvenTree Parts UI",
+  "generated": "2026-04-14",
+  "generated_by": "Claude Code (CodemIE) — derived from automated Playwright test files",
+  "scope": "Manual test cases aligned to automated tests — 32 test cases",
+  "automation_target": "pytest + playwright",
+  "base_url": "http://inventree.localhost",
+  "note": "Steps reflect InvenTree v1.3.0 React SPA. All selectors use aria-label attributes (Mantine UI). No time.sleep() — use wait_for_selector / networkidle.",
+  "test_cases": [
+
+    {
+      "tc_id": "UI-P-001",
+      "story": "US-UI-001",
+      "title": "Create part with required fields only",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage", "PartDetailPage"],
+      "preconditions": [
+        "InvenTree running at INVENTREE_URL",
+        "Admin user logged in (authenticated_context fixture)",
+        "Browser at /web/part/category/index/parts"
+      ],
+      "steps": [
+        { "step": 1, "action": "Click [aria-label='action-menu-add-parts'] to open the Add Parts menu", "expected": "Dropdown menu appears" },
+        { "step": 2, "action": "Click [aria-label='action-menu-add-parts-create-part']", "expected": "Part creation modal opens ([role='dialog'] visible)" },
+        { "step": 3, "action": "Fill [aria-label='text-field-name'] with 'UI-P-001 Resistor'", "expected": "Name field shows the entered text" },
+        { "step": 4, "action": "Fill [aria-label='text-field-description'] with '10K Ohm Resistor for test UI-P-001'", "expected": "Description field shows the entered text" },
+        { "step": 5, "action": "Click [role='dialog'] button:has-text('Submit')", "expected": "Modal closes" },
+        { "step": 6, "action": "Observe the parts list", "expected": "'UI-P-001 Resistor' is visible in the list" },
+        { "step": 7, "action": "Find part PK via API GET /api/part/?search=UI-P-001+Resistor&limit=50", "expected": "Part found in API response" },
+        { "step": 8, "action": "Navigate to /web/part/{pk}/", "expected": "Part detail page loads showing 'UI-P-001 Resistor'" }
+      ],
+      "assertions": [
+        "Part name visible in list after creation",
+        "API returns part with correct name",
+        "Detail page body contains 'UI-P-001 Resistor'"
+      ],
+      "cleanup": ["PATCH /api/part/{pk}/ with {active: false}", "DELETE /api/part/{pk}/"]
+    },
+
+    {
+      "tc_id": "UI-P-002",
+      "story": "US-UI-002",
+      "title": "Create part with optional IPN field",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage", "PartDetailPage"],
+      "preconditions": [
+        "InvenTree running, admin logged in",
+        "No part with IPN 'UI-CAP-002' exists"
+      ],
+      "steps": [
+        { "step": 1, "action": "Open Add Part modal (same as UI-P-001 steps 1-2)", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name: 'UI-P-002 Capacitor'", "expected": "Name entered" },
+        { "step": 3, "action": "Fill [aria-label='text-field-IPN'] with 'UI-CAP-002'", "expected": "IPN field shows 'UI-CAP-002'" },
+        { "step": 4, "action": "Fill description: '100uF Capacitor'", "expected": "Description entered" },
+        { "step": 5, "action": "Click Submit", "expected": "Modal closes, part visible in list" },
+        { "step": 6, "action": "Navigate to part detail page", "expected": "Page shows 'UI-CAP-002' on the detail view" }
+      ],
+      "assertions": [
+        "Part appears in list",
+        "Detail page body contains 'UI-CAP-002'"
+      ],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-003",
+      "story": "US-UI-003",
+      "title": "Duplicate a part via the UI action menu",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part named 'UI-P-003 Original Part' exists (create via API)",
+        "Admin logged in, browser on that part's detail page"
+      ],
+      "steps": [
+        { "step": 1, "action": "Click [aria-label='action-menu-part-actions'] to open the Part Actions menu", "expected": "Actions dropdown visible" },
+        { "step": 2, "action": "Click [aria-label='action-menu-part-actions-duplicate']", "expected": "Duplicate part modal opens pre-filled with source part data" },
+        { "step": 3, "action": "Clear [aria-label='text-field-name'] and type 'UI-P-003 Duplicate Part'", "expected": "Name field updated" },
+        { "step": 4, "action": "Click Submit", "expected": "Modal closes" },
+        { "step": 5, "action": "Search for 'UI-P-003 Duplicate Part' via API", "expected": "Part found with a new PK distinct from the original" }
+      ],
+      "assertions": [
+        "Duplicate part PK is not null",
+        "Original part still exists at original PK"
+      ],
+      "cleanup": ["Deactivate + delete both the original and duplicate parts via API"]
+    },
+
+    {
+      "tc_id": "UI-P-004",
+      "story": "US-UI-004",
+      "title": "Validation error shown when part name is missing",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": ["Admin logged in, part creation modal open"],
+      "steps": [
+        { "step": 1, "action": "Open the Part creation modal", "expected": "Modal open, name field empty" },
+        { "step": 2, "action": "Fill description only: 'Missing name test'", "expected": "Description filled, name still empty" },
+        { "step": 3, "action": "Click Submit", "expected": "Form does NOT close" },
+        { "step": 4, "action": "Inspect the name field area", "expected": "Validation error message visible near the name field" }
+      ],
+      "assertions": [
+        "Modal remains open after submission attempt",
+        "Name field area shows a validation error",
+        "No new part is created (API search returns 0 results)"
+      ],
+      "cleanup": []
+    },
+
+    {
+      "tc_id": "UI-P-005",
+      "story": "US-UI-005",
+      "title": "Validation error shown for duplicate IPN",
+      "priority": "High",
+      "type": "Negative",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": [
+        "A part with IPN 'DUP-IPN-005' already exists (create via API POST /api/part/ with IPN='DUP-IPN-005')",
+        "Admin logged in"
+      ],
+      "steps": [
+        { "step": 1, "action": "Open Part creation modal", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name: 'UI-P-005 Duplicate IPN Part'", "expected": "Name entered" },
+        { "step": 3, "action": "Fill description: 'Should fail'", "expected": "Description entered" },
+        { "step": 4, "action": "Fill IPN: 'DUP-IPN-005'", "expected": "IPN entered" },
+        { "step": 5, "action": "Click Submit", "expected": "Form stays open" },
+        { "step": 6, "action": "Observe IPN field", "expected": "Error message displayed near IPN field indicating uniqueness violation" }
+      ],
+      "assertions": [
+        "IPN field shows error",
+        "Modal stays open",
+        "API still returns only one part with that IPN"
+      ],
+      "cleanup": ["Delete the pre-existing part with IPN 'DUP-IPN-005' via API"]
+    },
+
+    {
+      "tc_id": "UI-P-006",
+      "story": "US-UI-006-007",
+      "title": "Part name at exactly 100 characters is accepted",
+      "priority": "Medium",
+      "type": "Boundary",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": ["Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Open Part creation modal", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name with a string of exactly 100 'A' characters (AAAA...×100)", "expected": "Name field accepts all 100 characters" },
+        { "step": 3, "action": "Fill description: 'Boundary test'", "expected": "Description entered" },
+        { "step": 4, "action": "Click Submit", "expected": "Modal closes — part created successfully" },
+        { "step": 5, "action": "Observe parts list", "expected": "Part with 100-char name is visible" }
+      ],
+      "assertions": [
+        "No validation error shown",
+        "Part appears in the list"
+      ],
+      "cleanup": ["Deactivate + delete the part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-007",
+      "story": "US-UI-006-007",
+      "title": "Part name exceeding 100 characters is rejected",
+      "priority": "Medium",
+      "type": "Boundary",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": ["Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Open Part creation modal", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name with a string of exactly 101 'A' characters", "expected": "Name field filled" },
+        { "step": 3, "action": "Fill description: 'Boundary test'", "expected": "Description entered" },
+        { "step": 4, "action": "Click Submit", "expected": "Form does NOT close" },
+        { "step": 5, "action": "Inspect name field", "expected": "Validation error shown (field too long or max length constraint)" }
+      ],
+      "assertions": [
+        "Validation error is shown for the name field",
+        "Modal stays open",
+        "No part created"
+      ],
+      "cleanup": []
+    },
+
+    {
+      "tc_id": "UI-P-008",
+      "story": "US-UI-008",
+      "title": "Create part assigned to a category",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": [
+        "A category named 'UI-P-008 Test Category' exists (create via API POST /api/part/category/)",
+        "Admin logged in"
+      ],
+      "steps": [
+        { "step": 1, "action": "Open Part creation modal", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name: 'UI-P-008 Categorised Part'", "expected": "Name entered" },
+        { "step": 3, "action": "Fill description: 'Part with category'", "expected": "Description entered" },
+        { "step": 4, "action": "Click [aria-label='related-field-category'] and type 'UI-P-008 Test Category'", "expected": "Dropdown suggestion appears" },
+        { "step": 5, "action": "Click the matching option in the dropdown ([role='option']:has-text('UI-P-008 Test Category'))", "expected": "Category selected" },
+        { "step": 6, "action": "Click Submit", "expected": "Modal closes, part appears in list" }
+      ],
+      "assertions": [
+        "Part visible in the parts list",
+        "API returns the part with the correct category PK"
+      ],
+      "cleanup": ["Deactivate + delete part; delete test category via API"]
+    },
+
+    {
+      "tc_id": "UI-P-009",
+      "story": "US-UI-009",
+      "title": "Edit a part's name via the UI action menu",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part named 'UI-P-009 Original Name' exists (create via API)",
+        "Admin logged in, browser on that part's detail page"
+      ],
+      "steps": [
+        { "step": 1, "action": "Click [aria-label='action-menu-part-actions']", "expected": "Actions menu opens" },
+        { "step": 2, "action": "Click [aria-label='action-menu-part-actions-edit']", "expected": "Edit part modal opens, name field pre-filled with 'UI-P-009 Original Name'" },
+        { "step": 3, "action": "Clear [role='dialog'] [aria-label='text-field-name']", "expected": "Name field is empty" },
+        { "step": 4, "action": "Type 'UI-P-009 Renamed Part' in the name field", "expected": "New name entered" },
+        { "step": 5, "action": "Click Submit", "expected": "Modal closes" },
+        { "step": 6, "action": "Observe the part detail page body", "expected": "'UI-P-009 Renamed Part' is visible on the page" }
+      ],
+      "assertions": [
+        "Detail page body contains 'UI-P-009 Renamed Part'",
+        "API GET /api/part/{pk}/ returns the updated name"
+      ],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-010",
+      "story": "US-UI-010",
+      "title": "Delete an inactive part via the UI",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_crud.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part exists (create via API)",
+        "Part deactivated via API PATCH /api/part/{pk}/ {active: false}",
+        "Admin logged in, browser on that part's detail page (after page reload)"
+      ],
+      "steps": [
+        { "step": 1, "action": "Verify Delete option in actions menu: click [aria-label='action-menu-part-actions']", "expected": "Delete option is enabled (not greyed out, active part would have it disabled)" },
+        { "step": 2, "action": "Click [aria-label='action-menu-part-actions-delete']", "expected": "Delete confirmation modal opens" },
+        { "step": 3, "action": "Wait for [role='dialog'] button:has-text('Delete') to be visible", "expected": "Confirm Delete button is visible in modal" },
+        { "step": 4, "action": "Click the Delete confirmation button", "expected": "Modal closes" },
+        { "step": 5, "action": "Wait for networkidle", "expected": "Page settles — likely redirects away from the deleted part" },
+        { "step": 6, "action": "Call API GET /api/part/{pk}/", "expected": "Response is HTTP 404" }
+      ],
+      "assertions": [
+        "API returns 404 after deletion",
+        "Modal closed without error"
+      ],
+      "cleanup": []
+    },
+
+    {
+      "tc_id": "UI-P-012",
+      "story": "US-UI-012-013-015-017",
+      "title": "Assembly flag reveals BOM tab",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part with assembly=true exists (create via API POST /api/part/ with {assembly: true})",
+        "Admin logged in"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to /web/part/{pk}/ for the assembly part", "expected": "Part detail page loads" },
+        { "step": 2, "action": "Inspect the tab list", "expected": "A tab with label containing 'BOM' (or bill-of-materials equivalent) is visible" }
+      ],
+      "assertions": ["BOM tab is visible in the tab bar"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-013",
+      "story": "US-UI-012-013-015-017",
+      "title": "Component flag reveals Used In tab",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["A part with component=true exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the component part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Inspect tab list", "expected": "Used In / Allocated tab is visible" }
+      ],
+      "assertions": ["Allocated/Used-In tab is visible"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-015",
+      "story": "US-UI-012-013-015-017",
+      "title": "Purchaseable flag reveals Suppliers tab",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["A part with purchaseable=true exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the purchaseable part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Inspect tab list", "expected": "Suppliers tab is visible" }
+      ],
+      "assertions": ["Suppliers tab is visible"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-017",
+      "story": "US-UI-012-013-015-017",
+      "title": "Template flag reveals Variants tab",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["A part with is_template=true exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the template part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Inspect tab list", "expected": "Variants tab is visible" }
+      ],
+      "assertions": ["Variants tab is visible"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-020-bom",
+      "story": "US-UI-020",
+      "title": "Multiple attributes (Assembly + Component) — BOM tab appears",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["Part with assembly=true AND component=true exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the multi-attribute part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Check tab list for BOM tab", "expected": "BOM tab is visible" }
+      ],
+      "assertions": ["BOM tab visible when assembly=true and component=true both set"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-020-suppliers",
+      "story": "US-UI-020",
+      "title": "Multiple attributes (Purchaseable + Salable) — Suppliers tab appears",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["Part with purchaseable=true AND salable=true exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the multi-attribute part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Check tab list for Suppliers tab", "expected": "Suppliers tab is visible" }
+      ],
+      "assertions": ["Suppliers tab visible when purchaseable=true and salable=true both set"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-024",
+      "story": "US-UI-024",
+      "title": "BOM tab hidden for non-Assembly part",
+      "priority": "Medium",
+      "type": "Negative",
+      "automation_file": "test_part_attributes.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["Part with assembly=false exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the non-assembly part detail page", "expected": "Page loads" },
+        { "step": 2, "action": "Inspect tab list", "expected": "No tab labelled BOM is visible" }
+      ],
+      "assertions": ["BOM tab is NOT present in the tab list"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-027",
+      "story": "US-UI-027-028-029",
+      "title": "Add a parameter to a part via the Parameters tab",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part exists (create via API)",
+        "A parameter template named 'UI-P-027 Resistance' exists (create via API POST /api/parameter/template/)",
+        "Admin logged in, browser on part detail page"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to the Parameters tab on the part detail page", "expected": "Parameters tab is active, Add Parameter button visible" },
+        { "step": 2, "action": "Click the Add Parameter action button [aria-label='action-menu-add-parameters-create-parameter']", "expected": "Add parameter modal opens" },
+        { "step": 3, "action": "Select template 'UI-P-027 Resistance' from the template dropdown", "expected": "Template selected" },
+        { "step": 4, "action": "Enter value '10000' in the value field", "expected": "Value entered" },
+        { "step": 5, "action": "Click Submit", "expected": "Modal closes" },
+        { "step": 6, "action": "Observe the Parameters tab content", "expected": "'UI-P-027 Resistance' is visible in the parameters table" }
+      ],
+      "assertions": [
+        "Parameter template name visible on the page",
+        "Value '10000' visible in the parameters table"
+      ],
+      "cleanup": ["Delete parameter template via API DELETE /api/parameter/template/{pk}/", "Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-028",
+      "story": "US-UI-027-028-029",
+      "title": "Parameters tab always visible on part detail",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": ["Any part exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to the part detail page /web/part/{pk}/", "expected": "Part detail page loads" },
+        { "step": 2, "action": "Inspect the tab list", "expected": "A tab labelled 'Parameters' is visible" }
+      ],
+      "assertions": ["Parameters tab is present regardless of part configuration"],
+      "cleanup": ["Deactivate + delete part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-029-positive",
+      "story": "US-UI-027-028-029",
+      "title": "Parameter accepts positive, zero, and negative values",
+      "priority": "Medium",
+      "type": "Boundary",
+      "automation_file": "test_part_parameters.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part exists for each value (3 separate parts or reuse one with cleanup)",
+        "A parameter template exists for each test value",
+        "Admin logged in"
+      ],
+      "steps": [
+        { "step": 1, "action": "Repeat for each value in [100, 0, -1]: navigate to part detail, open Parameters tab, click Add Parameter", "expected": "Add parameter modal opens each time" },
+        { "step": 2, "action": "Select template, enter value (100 first, then 0, then -1), click Submit each time", "expected": "Modal closes after each submission" },
+        { "step": 3, "action": "Observe Parameters tab after each submission", "expected": "The entered value is visible in the parameters table" }
+      ],
+      "assertions": [
+        "Value '100' visible after first submission",
+        "Value '0' visible after second submission",
+        "Value '-1' visible after third submission"
+      ],
+      "cleanup": ["Delete parameter templates via API", "Deactivate + delete parts via API"]
+    },
+
+    {
+      "tc_id": "UI-P-034",
+      "story": "US-UI-034",
+      "title": "Create a root-level part category via the UI",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": ["Admin logged in, browser at /web/part/category/index/"],
+      "steps": [
+        { "step": 1, "action": "Click [aria-label='action-button-add-part-category']", "expected": "Create category modal opens" },
+        { "step": 2, "action": "Fill name: 'UI-P-034 Root Category'", "expected": "Name entered" },
+        { "step": 3, "action": "Fill description: 'Root level test category'", "expected": "Description entered" },
+        { "step": 4, "action": "Click Submit", "expected": "Modal closes" },
+        { "step": 5, "action": "Observe the page body", "expected": "'UI-P-034 Root Category' is visible" }
+      ],
+      "assertions": [
+        "Category name visible in the page",
+        "API GET /api/part/category/?name=UI-P-034+Root+Category returns the category"
+      ],
+      "cleanup": ["DELETE /api/part/category/{pk}/"]
+    },
+
+    {
+      "tc_id": "UI-P-035",
+      "story": "US-UI-035",
+      "title": "Create a child subcategory under a parent",
+      "priority": "High",
+      "type": "Positive",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": [
+        "A parent category exists (create via API)",
+        "Admin logged in, browser on that parent category's page /web/part/category/{parent_pk}/"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to the subcategories tab of the parent category", "expected": "Subcategories tab active" },
+        { "step": 2, "action": "Click Add Category button [aria-label='action-button-add-part-category']", "expected": "Create category modal opens" },
+        { "step": 3, "action": "Fill name: 'UI-P-035 Child Category', description: 'Child subcategory'", "expected": "Fields filled" },
+        { "step": 4, "action": "Click Submit", "expected": "Modal closes" },
+        { "step": 5, "action": "Observe page body", "expected": "'UI-P-035 Child Category' is visible" }
+      ],
+      "assertions": [
+        "Child category visible in the page",
+        "API confirms parent field matches the parent PK"
+      ],
+      "cleanup": ["DELETE child category, then parent category via API"]
+    },
+
+    {
+      "tc_id": "UI-P-036",
+      "story": "US-UI-036",
+      "title": "Navigate multi-level category hierarchy — breadcrumbs show ancestors",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": [
+        "3-level category tree: Grandparent → Parent → Child (all created via API)",
+        "Admin logged in"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to /web/part/category/{child_pk}/", "expected": "Child category page loads" },
+        { "step": 2, "action": "Read the breadcrumb bar at the top of the page", "expected": "Breadcrumb shows at least one ancestor name ('UI-P-036 Grandparent' or 'UI-P-036 Parent')" }
+      ],
+      "assertions": [
+        "Breadcrumb text contains at least one ancestor",
+        "Page renders without error"
+      ],
+      "cleanup": ["DELETE child, parent, grandparent categories via API (child first)"]
+    },
+
+    {
+      "tc_id": "UI-P-038",
+      "story": "US-UI-038",
+      "title": "Parametric table view accessible from category page",
+      "priority": "Low",
+      "type": "Positive",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": ["A category exists", "Admin logged in"],
+      "steps": [
+        { "step": 1, "action": "Navigate to /web/part/category/{pk}/", "expected": "Category detail page loads without error" },
+        { "step": 2, "action": "Verify the page body is visible", "expected": "Page content rendered (no 404 / error boundary)" }
+      ],
+      "assertions": ["Category detail page body is visible"],
+      "cleanup": ["DELETE test category via API"]
+    },
+
+    {
+      "tc_id": "UI-P-039",
+      "story": "US-UI-039",
+      "title": "Delete an empty category via the UI",
+      "priority": "Medium",
+      "type": "Positive",
+      "automation_file": "test_part_categories.py",
+      "automation_status": "Automated",
+      "marks": ["ui"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": [
+        "An empty category exists (create via API)",
+        "Admin logged in, browser on that category's detail page"
+      ],
+      "steps": [
+        { "step": 1, "action": "Click [aria-label='action-menu-category-actions']", "expected": "Category actions dropdown opens" },
+        { "step": 2, "action": "Click [aria-label='action-menu-category-actions-delete']", "expected": "Delete confirmation modal opens" },
+        { "step": 3, "action": "Click [role='dialog'] button:has-text('Delete')", "expected": "Modal closes, page redirects" },
+        { "step": 4, "action": "Call API GET /api/part/category/{pk}/", "expected": "Response is HTTP 404" }
+      ],
+      "assertions": ["API returns 404 after deletion"],
+      "cleanup": []
+    },
+
+    {
+      "tc_id": "VIS-P-001",
+      "story": "US-VIS-001",
+      "title": "Visual regression baseline — Part detail page",
+      "priority": "Medium",
+      "type": "Visual",
+      "automation_file": "test_visual_regression.py",
+      "automation_status": "Automated",
+      "marks": ["visual"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part with component=true, purchaseable=true exists",
+        "Admin logged in",
+        "Baseline snapshots/part-detail.png exists (or UPDATE_SNAPSHOTS=true to create it)"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to part detail page /web/part/{pk}/", "expected": "Page loads" },
+        { "step": 2, "action": "Wait for networkidle", "expected": "All async data loaded" },
+        { "step": 3, "action": "Execute JavaScript to hide dynamic elements (.creation-date, .modified-date, [data-timestamp])", "expected": "Timestamps hidden" },
+        { "step": 4, "action": "Take a full-page=false screenshot", "expected": "Screenshot captured" },
+        { "step": 5, "action": "Compare against snapshots/part-detail.png using PIL/numpy (threshold 0.1)", "expected": "Mean pixel diff ≤ 10%" }
+      ],
+      "assertions": [
+        "Screenshot dimensions match baseline",
+        "Mean normalised pixel diff ≤ 0.10",
+        "If baseline absent and UPDATE_SNAPSHOTS=true: baseline saved, test passes"
+      ],
+      "cleanup": ["Deactivate + delete test part via API"]
+    },
+
+    {
+      "tc_id": "VIS-P-002",
+      "story": "US-VIS-002",
+      "title": "Visual regression baseline — Part creation form",
+      "priority": "Medium",
+      "type": "Visual",
+      "automation_file": "test_visual_regression.py",
+      "automation_status": "Automated",
+      "marks": ["visual"],
+      "page_objects": ["PartCreatePage"],
+      "preconditions": [
+        "Admin logged in",
+        "Baseline snapshots/part-create-form.png exists or UPDATE_SNAPSHOTS=true"
+      ],
+      "steps": [
+        { "step": 1, "action": "Open the Part creation modal (navigate to parts list, click Add Parts → Create Part)", "expected": "Modal visible ([role='dialog'] is visible)" },
+        { "step": 2, "action": "Wait for networkidle", "expected": "Form fully rendered" },
+        { "step": 3, "action": "Mask any dynamic content via JavaScript", "expected": "Timestamps hidden" },
+        { "step": 4, "action": "Take screenshot (full_page=false)", "expected": "Screenshot captured" },
+        { "step": 5, "action": "Compare against snapshots/part-create-form.png (threshold 0.1)", "expected": "Pixel diff ≤ 10%" }
+      ],
+      "assertions": [
+        "Modal is visible before screenshot",
+        "Mean pixel diff ≤ 0.10"
+      ],
+      "cleanup": []
+    },
+
+    {
+      "tc_id": "VIS-P-003",
+      "story": "US-VIS-003",
+      "title": "Visual regression baseline — Category list view",
+      "priority": "Medium",
+      "type": "Visual",
+      "automation_file": "test_visual_regression.py",
+      "automation_status": "Automated",
+      "marks": ["visual"],
+      "page_objects": ["CategoryPage"],
+      "preconditions": [
+        "A category named 'VIS-P-003 Category' exists (create via API)",
+        "Admin logged in",
+        "Baseline snapshots/category-view.png exists or UPDATE_SNAPSHOTS=true"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to /web/part/category/{cat_pk}/", "expected": "Category detail page loads" },
+        { "step": 2, "action": "Wait for networkidle", "expected": "Page fully loaded" },
+        { "step": 3, "action": "Mask dynamic content via JavaScript", "expected": "Timestamps hidden" },
+        { "step": 4, "action": "Take full_page=true screenshot", "expected": "Full page screenshot captured" },
+        { "step": 5, "action": "Compare against snapshots/category-view.png (threshold 0.1)", "expected": "Pixel diff ≤ 10%" }
+      ],
+      "assertions": [
+        "Full page screenshot taken",
+        "Mean pixel diff ≤ 0.10"
+      ],
+      "cleanup": ["DELETE /api/part/category/{cat_pk}/"]
+    },
+
+    {
+      "tc_id": "VIS-P-004",
+      "story": "US-VIS-004",
+      "title": "Visual regression baseline — Part with all attributes enabled",
+      "priority": "Medium",
+      "type": "Visual",
+      "automation_file": "test_visual_regression.py",
+      "automation_status": "Automated",
+      "marks": ["visual"],
+      "page_objects": ["PartDetailPage"],
+      "preconditions": [
+        "A part with assembly=true, component=true, trackable=true, purchaseable=true, salable=true exists (create via API)",
+        "Admin logged in",
+        "Baseline snapshots/part-attributes-all.png exists or UPDATE_SNAPSHOTS=true"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to the all-attributes part detail page /web/part/{pk}/", "expected": "Page loads with maximum tab count visible" },
+        { "step": 2, "action": "Wait for networkidle", "expected": "All tabs rendered" },
+        { "step": 3, "action": "Mask dynamic content via JavaScript", "expected": "Timestamps hidden" },
+        { "step": 4, "action": "Take screenshot (full_page=false)", "expected": "Screenshot captured" },
+        { "step": 5, "action": "Compare against snapshots/part-attributes-all.png (threshold 0.1)", "expected": "Pixel diff ≤ 10%" }
+      ],
+      "assertions": [
+        "Screenshot taken with all attribute tabs visible",
+        "Mean pixel diff ≤ 0.10"
+      ],
+      "cleanup": ["Deactivate + delete test part via API"]
+    },
+
+    {
+      "tc_id": "UI-P-050",
+      "story": "US-UI-050",
+      "title": "End-to-end: Create part → Add parameters → Create stock → Verify in category",
+      "priority": "High",
+      "type": "End-to-End",
+      "automation_file": "test_cross_functional.py",
+      "automation_status": "Automated",
+      "marks": ["ui", "cross_functional"],
+      "page_objects": ["PartCreatePage", "PartDetailPage", "CategoryPage"],
+      "preconditions": [
+        "Admin logged in",
+        "Category 'XF Test Category' created via API",
+        "Parameter template 'XF Resistance' created via API"
+      ],
+      "steps": [
+        { "step": 1, "action": "Navigate to Parts list (/web/part/category/index/parts), open Add Part modal", "expected": "Modal open" },
+        { "step": 2, "action": "Fill name 'XF Test Part', description 'Cross-functional test part', select category 'XF Test Category', click Submit", "expected": "Modal closes, 'XF Test Part' visible in list" },
+        { "step": 3, "action": "Look up part PK via API GET /api/part/?search=XF+Test+Part&limit=10", "expected": "PK returned" },
+        { "step": 4, "action": "Navigate to part detail /web/part/{pk}/, click Parameters tab, click Add Parameter action, select template 'XF Resistance', enter value '4700', click Submit", "expected": "Modal closes, 'XF Resistance' visible on Parameters tab" },
+        { "step": 5, "action": "Navigate to Stock tab (/web/part/{pk}/stock), click [aria-label='action-button-add-stock-item'], fill quantity '25' in [aria-label='number-field-quantity'], click Submit", "expected": "Modal closes, networkidle reached" },
+        { "step": 6, "action": "Navigate back to Stock tab and check content", "expected": "'25' is visible in the stock table" },
+        { "step": 7, "action": "Navigate to category Parts sub-tab /web/part/category/{cat_pk}/parts", "expected": "Page loads, 'XF Test Part' is visible in the parts table" },
+        { "step": 8, "action": "Mask dynamic content via JavaScript, take screenshot", "expected": "Screenshot captured" },
+        { "step": 9, "action": "Compare screenshot against snapshots/cross-functional-final-state.png (threshold 0.1)", "expected": "Pixel diff ≤ 10%" }
+      ],
+      "assertions": [
+        "Part created via UI is findable via API",
+        "Parameter 'XF Resistance' with value '4700' visible on part detail",
+        "Stock quantity '25' visible on Stock tab",
+        "Part visible in the category's Parts sub-tab",
+        "Visual snapshot passes 10% pixel diff threshold"
+      ],
+      "cleanup": [
+        "DELETE /api/parameter/template/{template_pk}/",
+        "PATCH /api/part/{pk}/ {active: false}",
+        "DELETE /api/part/{pk}/",
+        "DELETE /api/part/category/{cat_pk}/"
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ANYMUS — QA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #080b14;
+    --bg-card:     #0d1120;
+    --bg-elevated: #131829;
+    --bg-input:    #07091280;
+    --border:      #1e2540;
+    --border-hi:   #2a3255;
+
+    --text:     #dce4f5;
+    --text-2:   #8892b0;
+    --text-3:   #4a547a;
+
+    --violet:        #7c3aed;
+    --violet-mid:    #9333ea;
+    --violet-bright: #a855f7;
+    --violet-glow:   #c4b5fd;
+    --indigo:        #4f46e5;
+    --indigo-bright: #818cf8;
+    --cyan:          #0891b2;
+    --cyan-bright:   #22d3ee;
+    --teal-bright:   #2dd4bf;
+    --amber:         #d97706;
+    --amber-bright:  #fbbf24;
+    --pink-bright:   #f472b6;
+
+    --pass:         #10b981;
+    --pass-bright:  #34d399;
+    --pass-bg:      rgba(16,185,129,0.08);
+    --pass-border:  rgba(16,185,129,0.25);
+    --fail:         #ef4444;
+    --fail-bright:  #f87171;
+    --fail-bg:      rgba(239,68,68,0.08);
+    --fail-border:  rgba(239,68,68,0.25);
+    --warn:         #f59e0b;
+    --warn-bright:  #fcd34d;
+    --warn-bg:      rgba(245,158,11,0.08);
+    --warn-border:  rgba(245,158,11,0.25);
+
+    --radius:    12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.25);
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    background:
+      radial-gradient(ellipse 70% 40% at 15% 0%, rgba(124,58,237,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 35% at 85% 100%, rgba(8,145,178,0.06) 0%, transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top rainbow bar ─────────────────────────────────────────── */
+  .top-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 100%;
+    background: linear-gradient(90deg,
+      #7c3aed 0%, #4f46e5 20%, #0891b2 40%,
+      #10b981 60%, #f59e0b 80%, #ef4444 100%);
+    background-size: 200% auto;
+    animation: bar-shift 5s linear infinite;
+    z-index: 200;
+  }
+  @keyframes bar-shift {
+    from { background-position: 0% center; }
+    to   { background-position: 200% center; }
+  }
+
+  /* ── Header ──────────────────────────────────────────────────── */
+  .header {
+    background: rgba(13,17,32,0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-logo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(120deg, #c4b5fd 0%, #818cf8 40%, #22d3ee 75%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-divider {
+    width: 1px; height: 20px;
+    background: var(--border-hi);
+  }
+
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--pass-bg);
+    border: 1px solid var(--pass-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pass-bright);
+    letter-spacing: 0.04em;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--pass-bright);
+    box-shadow: 0 0 6px var(--pass-bright);
+    animation: pulse-dot 2.2s ease infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  .refresh-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    display: flex; align-items: center; gap: 7px;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────────── */
+  main {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 28px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── Card base ───────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-hi); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .card-icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .card-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────── */
+  .hero-card {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-card.pass {
+    background: linear-gradient(135deg, rgba(3,18,10,1) 0%, rgba(13,17,32,1) 60%);
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .hero-card.fail {
+    background: linear-gradient(135deg, rgba(20,4,8,1) 0%, rgba(13,17,32,1) 60%);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .hero-card.none {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .hero-strip {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .hero-card.pass .hero-strip { background: linear-gradient(180deg, var(--pass-bright), var(--teal-bright)); }
+  .hero-card.fail .hero-strip { background: linear-gradient(180deg, var(--fail-bright), var(--pink-bright)); }
+
+  .hero-inner {
+    padding: 26px 28px 26px 34px;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 24px;
+  }
+
+  .hero-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+
+  .hero-status {
+    font-size: 2.6rem; font-weight: 700;
+    letter-spacing: -0.04em; line-height: 1;
+    margin-bottom: 14px;
+  }
+  .hero-status.pass {
+    background: linear-gradient(120deg, var(--pass-bright), var(--teal-bright));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-status.fail {
+    background: linear-gradient(120deg, var(--fail-bright), var(--pink-bright));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-status.none { color: var(--text-3); font-size: 1.8rem; }
+
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12.5px; color: var(--text-2);
+  }
+  .hero-tag .val { color: var(--text); font-weight: 500; }
+  .hero-tag svg { color: var(--text-3); flex-shrink: 0; }
+
+  .hero-tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .stat-tile {
+    border-radius: var(--radius-sm);
+    padding: 16px 20px; min-width: 90px;
+    text-align: center;
+    border: 1px solid var(--border-hi);
+    background: rgba(255,255,255,0.03);
+  }
+  .stat-tile-num {
+    font-size: 1.75rem; font-weight: 700;
+    line-height: 1; margin-bottom: 5px;
+  }
+  .stat-tile-lbl {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .stat-tile.t-pass .stat-tile-num { color: var(--pass-bright); }
+  .stat-tile.t-fail .stat-tile-num { color: var(--fail-bright); }
+  .stat-tile.t-skip .stat-tile-num { color: var(--warn-bright); }
+  .stat-tile.t-total .stat-tile-num { color: var(--indigo-bright); }
+
+  /* ── Stage grid ──────────────────────────────────────────────── */
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 10px;
+  }
+
+  .stage-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .stage-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+  .stage-bar { height: 3px; background: var(--border-hi); }
+  .stage-card.pass { border-color: var(--pass-border); background: rgba(3,18,10,0.7); }
+  .stage-card.fail { border-color: var(--fail-border); background: rgba(20,4,8,0.7); }
+  .stage-card.skip { border-color: var(--warn-border); background: rgba(20,16,4,0.7); }
+  .stage-card.pass .stage-bar { background: linear-gradient(90deg, var(--pass), var(--teal-bright)); }
+  .stage-card.fail .stage-bar { background: linear-gradient(90deg, var(--fail), var(--pink-bright)); }
+  .stage-card.skip .stage-bar { background: linear-gradient(90deg, var(--warn), var(--warn-bright)); }
+
+  .stage-body { padding: 14px 14px 14px; }
+
+  .stage-top-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .stage-num-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+  }
+
+  .stage-icon-wrap {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stage-card.pass .stage-icon-wrap { background: var(--pass-bg); color: var(--pass-bright); }
+  .stage-card.fail .stage-icon-wrap { background: var(--fail-bg); color: var(--fail-bright); }
+  .stage-card.skip .stage-icon-wrap { background: var(--warn-bg); color: var(--warn-bright); }
+  .stage-card.none .stage-icon-wrap { background: rgba(255,255,255,0.04); color: var(--text-3); }
+
+  .stage-name {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--text); line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .stage-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .stage-card.pass .stage-pill { background: var(--pass-bg); color: var(--pass-bright); border: 1px solid var(--pass-border); }
+  .stage-card.fail .stage-pill { background: var(--fail-bg); color: var(--fail-bright); border: 1px solid var(--fail-border); }
+  .stage-card.skip .stage-pill { background: var(--warn-bg); color: var(--warn-bright); border: 1px solid var(--warn-border); }
+  .stage-card.none .stage-pill { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border); }
+
+  /* ── Trend ───────────────────────────────────────────────────── */
+  .trend-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 88px;
+  }
+
+  .trend-col {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 7px;
+    height: 100%; justify-content: flex-end;
+  }
+
+  .trend-bar-outer {
+    width: 100%; flex: 1;
+    display: flex; align-items: flex-end;
+    position: relative;
+  }
+
+  .trend-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 10px;
+    cursor: default;
+    transition: opacity 0.15s;
+    position: relative;
+  }
+  .trend-bar:hover { opacity: 0.8; }
+  .trend-bar.pass {
+    height: 100%;
+    background: linear-gradient(180deg, var(--pass-bright) 0%, var(--pass) 100%);
+    box-shadow: 0 0 8px rgba(16,185,129,0.2);
+  }
+  .trend-bar.fail {
+    height: 65%;
+    background: linear-gradient(180deg, var(--fail-bright) 0%, var(--fail) 100%);
+    box-shadow: 0 0 8px rgba(239,68,68,0.2);
+  }
+
+  .trend-bar-tooltip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px; white-space: nowrap;
+    color: var(--text); pointer-events: none;
+    opacity: 0; transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .trend-bar:hover .trend-bar-tooltip { opacity: 1; }
+
+  .trend-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-3);
+    text-align: center; white-space: nowrap;
+  }
+
+  .trend-footer {
+    display: flex; gap: 18px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .trend-legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text-2);
+  }
+  .legend-swatch {
+    width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+  }
+  .legend-swatch.pass { background: var(--pass-bright); }
+  .legend-swatch.fail { background: var(--fail-bright); }
+
+  /* ── History table ───────────────────────────────────────────── */
+  .run-table { width: 100%; border-collapse: collapse; }
+
+  .run-table th {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-3);
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border-hi);
+    background: var(--bg-elevated);
+    white-space: nowrap;
+  }
+
+  .run-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-2);
+    vertical-align: middle;
+  }
+  .run-table tr:last-child td { border-bottom: none; }
+  .run-table tbody tr:hover td { background: rgba(255,255,255,0.025); color: var(--text); }
+
+  .result-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .result-badge.pass { background: var(--pass-bg); color: var(--pass-bright); border: 1px solid var(--pass-border); }
+  .result-badge.fail { background: var(--fail-bg); color: var(--fail-bright); border: 1px solid var(--fail-border); }
+
+  .stage-counts {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  }
+  .sc-pass { color: var(--pass-bright); }
+  .sc-fail { color: var(--fail-bright); }
+  .sc-dim  { color: var(--text-3); }
+
+  /* ── Buttons ─────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    letter-spacing: -0.01em; cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s; text-decoration: none;
+  }
+  .btn svg { flex-shrink: 0; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--violet), var(--indigo));
+    color: #fff; border-color: rgba(124,58,237,0.5);
+    box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--violet-bright), var(--indigo-bright));
+    box-shadow: 0 4px 16px rgba(124,58,237,0.45);
+    transform: translateY(-1px);
+  }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost:disabled   { opacity: 0.35; cursor: not-allowed; }
+  .ai-select:disabled   { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: var(--bg-elevated); border-color: var(--border-hi); color: var(--text-2);
+  }
+  .btn-ghost:hover { border-color: var(--border-hi); color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .btn-cyan {
+    background: rgba(8,145,178,0.1); border-color: rgba(8,145,178,0.3); color: var(--cyan-bright);
+  }
+  .btn-cyan:hover { background: rgba(8,145,178,0.18); box-shadow: 0 0 12px rgba(8,145,178,0.2); }
+
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ── AI Pulse ────────────────────────────────────────────────── */
+  .ai-card {
+    border-color: rgba(124,58,237,0.22);
+    background: linear-gradient(140deg, #0d1120 0%, #110d20 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-card::after {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .ai-header-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--violet), var(--indigo));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 14px rgba(124,58,237,0.35);
+    color: #fff; flex-shrink: 0;
+  }
+
+  .ai-form-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex; gap: 12px;
+    align-items: flex-end; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    display: flex; flex-direction: column; gap: 6px;
+    flex: 1; min-width: 160px;
+  }
+
+  .form-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--violet-glow);
+  }
+
+  .input-wrap {
+    display: flex; align-items: stretch;
+    background: var(--bg);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input-wrap:focus-within {
+    border-color: var(--violet-bright);
+    box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
+  }
+
+  .ai-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; padding: 9px 13px; min-width: 0;
+  }
+  .ai-input::placeholder { color: var(--text-3); }
+
+  .eye-btn {
+    background: transparent; border: none;
+    border-left: 1px solid var(--border);
+    color: var(--text-3); cursor: pointer;
+    padding: 0 12px; display: flex; align-items: center;
+    transition: color 0.15s;
+  }
+  .eye-btn:hover { color: var(--violet-glow); }
+
+  .ai-select {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius-sm);
+    color: var(--text); font-family: inherit; font-size: 13px;
+    padding: 9px 13px; outline: none; cursor: pointer;
+    transition: border-color 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a547a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+  }
+  .ai-select:focus { border-color: var(--violet-bright); box-shadow: 0 0 0 2px rgba(124,58,237,0.15); }
+  .ai-select option { background: var(--bg-card); }
+
+  /* connection status */
+  .conn-status {
+    display: none;
+    align-items: center; gap: 7px;
+    margin-top: 7px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .conn-status.show { display: flex; }
+  .conn-ok  { color: var(--pass-bright); }
+  .conn-err { color: var(--fail-bright); }
+  .conn-info { color: var(--cyan-bright); }
+
+  /* spinning loader icon */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.8s linear infinite; display: inline-flex; }
+
+  .ai-loading {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 0;
+    color: var(--text-2); font-size: 13px;
+  }
+
+  .loading-dots { display: flex; gap: 5px; }
+  .loading-dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    animation: ldot 1.3s ease infinite;
+  }
+  .loading-dots span:nth-child(1) { background: var(--violet-bright); }
+  .loading-dots span:nth-child(2) { background: var(--indigo-bright); animation-delay: 0.18s; }
+  .loading-dots span:nth-child(3) { background: var(--cyan-bright);   animation-delay: 0.36s; }
+  @keyframes ldot {
+    0%, 75%, 100% { transform: translateY(0); opacity: 0.35; }
+    38%            { transform: translateY(-8px); opacity: 1; }
+  }
+
+  .ai-response-box {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(124,58,237,0.18);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: slide-in 0.3s ease;
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ai-response-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: rgba(124,58,237,0.07);
+    border-bottom: 1px solid rgba(124,58,237,0.15);
+  }
+
+  .model-chip {
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--violet-glow);
+  }
+
+  .ai-response-body {
+    padding: 20px 22px;
+    font-size: 14px; line-height: 1.8; color: var(--text);
+  }
+
+  .ai-response-body strong { color: var(--cyan-bright); font-weight: 600; }
+
+  .ai-h2 {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--violet-glow);
+    margin: 20px 0 8px;
+  }
+  .ai-h2::before {
+    content: ''; flex-shrink: 0;
+    width: 3px; height: 15px; border-radius: 2px;
+    background: linear-gradient(180deg, var(--violet-bright), var(--cyan-bright));
+    display: inline-block;
+  }
+
+  .ai-h3 {
+    font-size: 13.5px; font-weight: 600; color: var(--text);
+    margin: 14px 0 5px;
+  }
+
+  .ai-code {
+    background: rgba(8,145,178,0.1);
+    border: 1px solid rgba(8,145,178,0.2);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--cyan-bright);
+  }
+
+  .ai-li {
+    display: flex; gap: 10px;
+    padding: 3px 0;
+  }
+  .ai-li-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--violet-bright);
+    flex-shrink: 0; margin-top: 9px;
+  }
+
+  .ai-error-box {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--fail-bg);
+    border: 1px solid var(--fail-border);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    color: var(--fail-bright);
+    font-size: 13px; margin-top: 8px;
+  }
+  .ai-error-box svg { flex-shrink: 0; margin-top: 1px; }
+
+  .raw-toggle {
+    margin-top: 18px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+  .raw-toggle summary {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-3); cursor: pointer;
+    list-style: none; user-select: none;
+    transition: color 0.15s;
+  }
+  .raw-toggle summary::-webkit-details-marker { display: none; }
+  .raw-toggle[open] summary { color: var(--text-2); }
+  .raw-toggle summary:hover { color: var(--violet-glow); }
+  .raw-toggle .chevron { transition: transform 0.2s; }
+  .raw-toggle[open] .chevron { transform: rotate(90deg); }
+
+  .raw-textarea {
+    display: block; width: 100%; margin-top: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.7;
+    padding: 14px 16px;
+    resize: vertical; min-height: 190px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .raw-textarea:focus { border-color: var(--violet-bright); }
+
+  .copy-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 10px;
+  }
+  .copied-msg {
+    font-size: 12px; color: var(--pass-bright);
+    display: none; align-items: center; gap: 5px;
+  }
+  .copied-msg.show { display: flex; }
+
+  /* ── Empty ───────────────────────────────────────────────────── */
+  .empty {
+    text-align: center;
+    padding: 72px 24px;
+    color: var(--text-3);
+  }
+  .empty-icon-wrap {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--bg-elevated); border: 1px solid var(--border-hi);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px; color: var(--indigo-bright);
+  }
+  .empty-title { font-size: 17px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+  .empty-sub { font-size: 13.5px; color: var(--text-3); margin-bottom: 18px; }
+  .empty-cmd {
+    display: inline-block;
+    background: var(--bg-elevated); border: 1px solid var(--border-hi);
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--cyan-bright);
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+  footer {
+    text-align: center; padding: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+  }
+  footer a { color: var(--cyan-bright); text-decoration: none; }
+  footer a:hover { color: var(--violet-glow); }
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<header class="header">
+  <div class="header-left">
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      Live
+    </div>
+    <div class="header-divider"></div>
+    <span class="header-logo">ANYMUS</span>
+    <div class="header-divider"></div>
+    <span class="header-sub">AI-Native Shift Left QA · InvenTree Parts Module</span>
+  </div>
+  <div class="refresh-pill" id="refresh-timer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    Auto-refresh in 10s
+  </div>
+</header>
+
+<main id="app">
+  <div class="empty">
+    <div class="empty-icon-wrap">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="empty-title">Loading run data…</div>
+  </div>
+</main>
+
+<footer>
+  ANYMUS QA Dashboard &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="/api/data">Raw JSON</a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  QAHub AI Hackathon 2026
+</footer>
+
+<script>
+// ── Inline SVG icon library ─────────────────────────────────────────────────
+const SZ = (sz) => `width="${sz}" height="${sz}"`;
+const SVG = (d, sz = 16, sw = 2) =>
+  `<svg ${SZ(sz)} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+
+const IC = {
+  check:      SVG(`<polyline points="20 6 9 17 4 12"/>`, 14, 2.5),
+  xmark:      SVG(`<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`, 14, 2.5),
+  minus:      SVG(`<line x1="5" y1="12" x2="19" y2="12"/>`, 14, 2.5),
+  clock:      SVG(`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`, 14),
+  timer:      SVG(`<line x1="10" y1="2" x2="14" y2="2"/><path d="M12 14l3.5-3.5"/><circle cx="12" cy="14" r="8"/>`, 14),
+  zap:        SVG(`<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`, 16),
+  activity:   SVG(`<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`, 16),
+  settings:   SVG(`<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m16 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>`, 16),
+  fileCheck:  SVG(`<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 11 17 15 13"/>`, 16),
+  code:       SVG(`<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`, 16),
+  layers:     SVG(`<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`, 16),
+  monitor:    SVG(`<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`, 16),
+  eye:        SVG(`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`, 16),
+  eyeOff:     SVG(`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`, 16),
+  copy:       SVG(`<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>`, 14),
+  barChart:   SVG(`<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`, 14),
+  sparkles:   SVG(`<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>`, 16),
+  checkCircle:SVG(`<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`, 14),
+  xCircle:    SVG(`<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`, 14),
+  chevRight:  SVG(`<polyline points="9 18 15 12 9 6"/>`, 12),
+  pipeline:   SVG(`<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>`, 16),
+  trending:   SVG(`<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>`, 16),
+  history:    SVG(`<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="15" y2="15"/>`, 16),
+  bot:        SVG(`<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>`, 16),
+  alertCircle:SVG(`<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>`, 16),
+  wifi:       SVG(`<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>`, 16),
+  loader:     SVG(`<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>`, 16),
+};
+
+const STAGE_ICONS = {
+  '0': IC.settings,   // Env Check
+  '1': IC.activity,   // Health Check
+  '2': IC.fileCheck,  // Contract Tests
+  '3': IC.code,       // API Suite
+  '4': IC.layers,     // Mock Tests
+  '5': IC.monitor,    // UI Suite
+  '6': IC.eye,        // Visual Tests
+};
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stageClass(code) {
+  if (code === null || code === undefined) return 'none';
+  return code === 0 ? 'pass' : 'fail';
+}
+
+// ── Render: Hero ─────────────────────────────────────────────────────────────
+function renderHero(latest, stageLabels) {
+  const pass     = latest.all_pass;
+  const cls      = pass ? 'pass' : 'fail';
+  const label    = pass ? 'All Stages Passed' : 'Pipeline Failed';
+  const runAt    = latest.run_at ? new Date(latest.run_at).toLocaleString() : '—';
+  const stages   = latest.stages || {};
+  const passCount = Object.values(stages).filter(c => c === 0).length;
+  const failCount = Object.values(stages).filter(c => c !== null && c !== 0).length;
+  const skipCount = Object.values(stages).filter(c => c === null).length;
+  const total     = Object.keys(stageLabels || {}).length;
+
+  return `
+    <div class="hero-card ${cls}">
+      <div class="hero-strip"></div>
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-label">Latest Run &nbsp;·&nbsp; ${esc(latest._file || '—')}</div>
+          <div class="hero-status ${cls}">${label}</div>
+          <div class="hero-tags">
+            <div class="hero-tag">${IC.clock} Run at &nbsp;<span class="val">${runAt}</span></div>
+            ${latest.duration ? `<div class="hero-tag">${IC.timer} Duration &nbsp;<span class="val">${esc(latest.duration)}</span></div>` : ''}
+            ${latest.allure_url ? `<a href="${latest.allure_url}" target="_blank" class="btn btn-cyan btn-sm">${IC.barChart} Allure Report</a>` : ''}
+          </div>
+        </div>
+        <div class="hero-tiles">
+          <div class="stat-tile t-pass">
+            <div class="stat-tile-num">${passCount}</div>
+            <div class="stat-tile-lbl">Passed</div>
+          </div>
+          <div class="stat-tile t-fail">
+            <div class="stat-tile-num">${failCount}</div>
+            <div class="stat-tile-lbl">Failed</div>
+          </div>
+          <div class="stat-tile t-skip">
+            <div class="stat-tile-num">${skipCount}</div>
+            <div class="stat-tile-lbl">Skipped</div>
+          </div>
+          <div class="stat-tile t-total">
+            <div class="stat-tile-num">${total}</div>
+            <div class="stat-tile-lbl">Stages</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Render: Stages ───────────────────────────────────────────────────────────
+function renderStages(latest, stageLabels) {
+  const stages = latest.stages || {};
+  const cards = Object.entries(stageLabels).map(([num, label]) => {
+    const code = stages[num] !== undefined ? stages[num] : null;
+    const cls  = stageClass(code);
+    const icon = STAGE_ICONS[num] || IC.code;
+    const pillIcon = code === null ? IC.minus : code === 0 ? IC.check : IC.xmark;
+    const pillText = code === null ? 'Skipped' : code === 0 ? 'Pass' : 'Fail';
+    return `
+      <div class="stage-card ${cls}">
+        <div class="stage-bar"></div>
+        <div class="stage-body">
+          <div class="stage-top-row">
+            <span class="stage-num-lbl">Stage ${num}</span>
+            <div class="stage-icon-wrap">${icon}</div>
+          </div>
+          <div class="stage-name">${esc(label)}</div>
+          <div class="stage-pill">${pillIcon} ${pillText}</div>
+        </div>
+      </div>
+    `;
+  });
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(79,70,229,0.12);color:var(--indigo-bright)">${IC.pipeline}</div>
+        <div>
+          <div class="card-title">Pipeline Stages</div>
+          <div class="card-sub">Per-stage pass / fail breakdown</div>
+        </div>
+      </div>
+      <div class="stage-grid">${cards.join('')}</div>
+    </div>
+  `;
+}
+
+// ── Render: Trend ─────────────────────────────────────────────────────────────
+function renderTrend(trend) {
+  if (!trend || trend.length === 0) return '';
+  const bars = trend.map(r => {
+    const cls  = r.all_pass ? 'pass' : 'fail';
+    const date = r.run_at ? new Date(r.run_at).toLocaleDateString(undefined, {month:'short', day:'numeric'}) : '—';
+    const time = r.run_at ? new Date(r.run_at).toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'}) : '';
+    const tip  = `${r.all_pass ? 'PASS' : 'FAIL'} · ${r.duration || '—'}`;
+    return `
+      <div class="trend-col">
+        <div class="trend-bar-outer">
+          <div class="trend-bar ${cls}" title="${esc(tip)}">
+            <div class="trend-bar-tooltip">${esc(tip)}</div>
+          </div>
+        </div>
+        <div class="trend-date">${date}<br>${time}</div>
+      </div>
+    `;
+  });
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(8,145,178,0.12);color:var(--cyan-bright)">${IC.trending}</div>
+        <div>
+          <div class="card-title">Run Trend</div>
+          <div class="card-sub">Last ${trend.length} runs</div>
+        </div>
+      </div>
+      <div class="trend-wrap">${bars.join('')}</div>
+      <div class="trend-footer">
+        <div class="trend-legend-item"><span class="legend-swatch pass"></span> Pass</div>
+        <div class="trend-legend-item"><span class="legend-swatch fail"></span> Fail</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Render: History ───────────────────────────────────────────────────────────
+function renderHistory(runs) {
+  if (!runs || runs.length === 0) return '';
+  const rows = runs.map(r => {
+    const pass       = r.all_pass;
+    const cls        = pass ? 'pass' : 'fail';
+    const label      = pass ? 'Pass' : 'Fail';
+    const badgeIcon  = pass ? IC.checkCircle : IC.xCircle;
+    const runAt      = r.run_at ? new Date(r.run_at).toLocaleString() : '—';
+    const total      = Object.keys(r.stages || {}).length;
+    const p          = Object.values(r.stages || {}).filter(c => c === 0).length;
+    const f          = Object.values(r.stages || {}).filter(c => c !== null && c !== 0).length;
+    return `
+      <tr>
+        <td><span class="result-badge ${cls}">${badgeIcon} ${label}</span></td>
+        <td style="color:var(--text)">${runAt}</td>
+        <td style="font-family:'JetBrains Mono',monospace;color:var(--cyan-bright)">${esc(r.duration || '—')}</td>
+        <td>
+          <span class="stage-counts">
+            <span class="sc-pass">${p} pass</span>
+            <span class="sc-dim"> / </span>
+            <span class="sc-fail">${f} fail</span>
+            <span class="sc-dim"> / ${total}</span>
+          </span>
+        </td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px"
+            title="${esc(r.summary || '')}">${esc(r.summary || '—')}</td>
+      </tr>
+    `;
+  });
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(79,70,229,0.12);color:var(--indigo-bright)">${IC.history}</div>
+        <div>
+          <div class="card-title">Run History</div>
+          <div class="card-sub">Last ${runs.length} pipeline runs</div>
+        </div>
+      </div>
+      <table class="run-table">
+        <thead>
+          <tr>
+            <th>Result</th>
+            <th>Run At</th>
+            <th>Duration</th>
+            <th>Stages</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ── AI Pulse ──────────────────────────────────────────────────────────────────
+// No hardcoded model IDs — always fetched live from EPAM DIAL via Test Connection
+
+function renderPulse(pulseContext, allureUrl) {
+  // Placeholder shown until Test Connection populates the list
+  const opts = `<option value="" disabled selected>— Test Connection to load available models —</option>`;
+  return `
+    <div class="card ai-card" id="ai-pulse-card">
+      <div class="card-header" style="margin-bottom:20px">
+        <div class="ai-header-icon">${IC.sparkles}</div>
+        <div>
+          <div class="card-title">AI Pulse — Inline Analysis</div>
+          <div class="card-sub">Claude via EPAM DIAL · Powered by Anthropic</div>
+        </div>
+      </div>
+
+      <div class="ai-form-panel">
+        <div class="form-group" style="flex:2;min-width:220px">
+          <label class="form-label">EPAM DIAL API Key</label>
+          <div class="input-wrap">
+            <input type="password" id="ai-api-key" class="ai-input"
+              placeholder="Paste your EPAM DIAL key…"
+              oninput="saveDialKey(this.value)" />
+            <button class="eye-btn" id="eye-btn" onclick="toggleKeyVisibility()" title="Show / hide">
+              <span id="eye-icon">${IC.eye}</span>
+            </button>
+          </div>
+          <div id="conn-status" class="conn-status"></div>
+        </div>
+
+        <div class="form-group" style="flex:0 0 auto;min-width:auto">
+          <label class="form-label" style="visibility:hidden">Test</label>
+          <button class="btn btn-primary" id="test-conn-btn" onclick="testConnection()">
+            ${IC.wifi} Test Connection
+          </button>
+        </div>
+
+        <div class="form-group" style="flex:1;min-width:200px">
+          <label class="form-label">Model <span id="model-count" style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
+          <select id="ai-model" class="ai-select" disabled
+            onchange="localStorage.setItem('anymus_dial_selected', this.value)">${opts}</select>
+        </div>
+
+        <div class="form-group" style="flex:0 0 auto;min-width:auto">
+          <label class="form-label" style="visibility:hidden">Run</label>
+          <button class="btn btn-ghost" id="ai-run-btn" onclick="runAIPulse()" disabled
+            title="Test Connection first to load models">
+            ${IC.zap} Get AI Pulse
+          </button>
+        </div>
+
+        ${allureUrl ? `
+        <div class="form-group" style="flex:0 0 auto;min-width:auto">
+          <label class="form-label" style="visibility:hidden">Report</label>
+          <a href="${allureUrl}" target="_blank" class="btn btn-cyan">${IC.barChart} Allure</a>
+        </div>` : ''}
+      </div>
+
+      <div id="ai-loading" style="display:none" class="ai-loading">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        Analysing with Claude via EPAM DIAL…
+      </div>
+
+      <div id="ai-response-area" style="display:none">
+        <div class="ai-response-box">
+          <div class="ai-response-header">
+            <span style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;text-transform:uppercase">Analysis by</span>
+            <span class="model-chip" id="ai-model-chip"></span>
+            <span style="flex:1"></span>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ai-response-area').style.display='none'">
+              ${IC.xmark} Clear
+            </button>
+          </div>
+          <div id="ai-response-body" class="ai-response-body"></div>
+        </div>
+      </div>
+
+      <div id="ai-error-area" style="display:none" class="ai-error-box">
+        ${IC.alertCircle}
+        <span id="ai-error-msg"></span>
+      </div>
+
+      <details class="raw-toggle">
+        <summary>
+          <span class="chevron">${IC.chevRight}</span>
+          Raw context — copy to Claude Code / Cursor
+        </summary>
+        <textarea class="raw-textarea" id="pulse-ctx" readonly>${esc(pulseContext)}</textarea>
+        <div class="copy-row">
+          <button class="btn btn-ghost btn-sm" onclick="copyPulse()">
+            ${IC.copy} Copy Context
+          </button>
+          <span class="copied-msg" id="copied-msg">${IC.check} Copied to clipboard</span>
+        </div>
+      </details>
+    </div>
+  `;
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+function renderEmpty() {
+  return `
+    <div class="empty">
+      <div class="empty-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+      </div>
+      <div class="empty-title">No runs yet</div>
+      <div class="empty-sub">Run the pipeline first, then this page will auto-refresh.</div>
+      <code class="empty-cmd">python scripts/run_pipeline.py --api-only</code>
+    </div>
+  `;
+}
+
+// ── Clipboard ─────────────────────────────────────────────────────────────────
+function copyPulse() {
+  const ta  = document.getElementById('pulse-ctx');
+  const msg = document.getElementById('copied-msg');
+  ta.select();
+  navigator.clipboard.writeText(ta.value)
+    .catch(() => document.execCommand('copy'))
+    .finally(() => {
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 2500);
+    });
+}
+
+// ── Persistence keys ──────────────────────────────────────────────────────────
+const KEY_STORE    = 'anymus_dial_key';
+const MODELS_STORE = 'anymus_dial_models';    // cached model list (JSON array)
+const SEL_STORE    = 'anymus_dial_selected';  // last-selected model id
+const RESP_STORE   = 'anymus_ai_response';    // last AI response (sessionStorage)
+
+// ── Model relevance filter ────────────────────────────────────────────────────
+// Only show latest capable models — skip legacy/specialist ones.
+// Matches: Claude Sonnet/Opus/Haiku, GPT-4/5, Gemini Pro/Ultra/Flash, o1/o3/o4
+const RELEVANT = /sonnet|opus|haiku|gpt[- ]*[45]|gemini.*(pro|ultra|flash|2)|o[134][- ]/i;
+
+function isRelevant(id) { return RELEVANT.test(id); }
+
+// ── Populate the model <select> from a model array ───────────────────────────
+function applyModelList(models) {
+  const $select = document.getElementById('ai-model');
+  const $run    = document.getElementById('ai-run-btn');
+  const $count  = document.getElementById('model-count');
+  if (!$select) return;
+
+  // Filter to relevant models; fall back to full list if none match
+  const relevant = models.filter(m => isRelevant(m.id));
+  const toShow   = relevant.length > 0 ? relevant : models;
+
+  // Sort: Sonnet first, then Opus, then rest alphabetically
+  toShow.sort((a, b) => {
+    const rank = id => /sonnet/i.test(id) ? 0 : /opus/i.test(id) ? 1 : /gpt/i.test(id) ? 2 : /gemini/i.test(id) ? 3 : 4;
+    return rank(a.id) - rank(b.id) || a.id.localeCompare(b.id);
+  });
+
+  const prevSel = localStorage.getItem(SEL_STORE) || '';
+
+  $select.innerHTML = toShow.map(m => {
+    const friendly = m.id
+      .replace(/^anthropic[./]/i, '')
+      .replace(/-(\d{8})$/, '')
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+    return `<option value="${m.id}">${friendly}</option>`;
+  }).join('');
+
+  $select.disabled = false;
+
+  // Restore previously selected model if still in the list
+  if (prevSel && Array.from($select.options).some(o => o.value === prevSel)) {
+    $select.value = prevSel;
+  }
+
+  if ($run) {
+    $run.disabled = false;
+    $run.classList.replace('btn-ghost', 'btn-primary');
+    $run.removeAttribute('title');
+  }
+
+  if ($count) {
+    $count.textContent = `· ${toShow.length} model${toShow.length !== 1 ? 's' : ''}` +
+      (models.length > toShow.length ? ` (${models.length - toShow.length} hidden)` : '');
+  }
+}
+
+// ── Load saved key + restore cached models (no network on refresh) ────────────
+function loadSavedDialKey() {
+  try {
+    const k  = localStorage.getItem(KEY_STORE);
+    const el = document.getElementById('ai-api-key');
+    if (!k) return;
+    el.value = k;
+
+    // Restore cached model list — avoids a network round-trip on every refresh
+    const cached = localStorage.getItem(MODELS_STORE);
+    if (cached) {
+      try {
+        applyModelList(JSON.parse(cached));
+        setConnStatus('ok', `${IC.checkCircle} Using cached models — click Test Connection to refresh`);
+      } catch(_) {
+        // Cache corrupted: re-fetch
+        setTimeout(() => testConnection(), 700);
+      }
+    } else {
+      // First time with this key — fetch live
+      setTimeout(() => testConnection(), 700);
+    }
+  } catch(_) {}
+}
+
+// ── Restore last AI response from sessionStorage ──────────────────────────────
+function restoreAIResponse() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(RESP_STORE) || 'null');
+    if (!saved?.html) return;
+    const $body = document.getElementById('ai-response-body');
+    const $chip = document.getElementById('ai-model-chip');
+    const $resp = document.getElementById('ai-response-area');
+    if ($body) $body.innerHTML = saved.html;
+    if ($chip) $chip.textContent = saved.model || '';
+    if ($resp) $resp.style.display = 'block';
+  } catch(_) {}
+}
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('ai-api-key');
+  const icon = document.getElementById('eye-icon');
+  if (!inp) return;
+  const isHidden = inp.type === 'password';
+  inp.type  = isHidden ? 'text' : 'password';
+  if (icon) icon.innerHTML = isHidden ? IC.eyeOff : IC.eye;
+}
+
+// ── Safe JSON fetch — always returns parsed object even on error ───────────
+async function dialPost(endpoint, payload) {
+  const res  = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const text = await res.text();
+  let data;
+  try   { data = JSON.parse(text); }
+  catch (_) { throw new Error(`Server returned non-JSON (HTTP ${res.status}): ${text.slice(0, 200)}`); }
+  if (!res.ok) {
+    const msg = data?.error?.message || data?.error || JSON.stringify(data);
+    throw new Error(`HTTP ${res.status}: ${msg}`);
+  }
+  return data;
+}
+
+// ── Test Connection & fetch live models from EPAM DIAL ───────────────────────
+async function testConnection() {
+  const apiKey  = (document.getElementById('ai-api-key')?.value || '').trim();
+  const $btn    = document.getElementById('test-conn-btn');
+  const $select = document.getElementById('ai-model');
+  const $run    = document.getElementById('ai-run-btn');
+
+  if (!apiKey) {
+    document.getElementById('ai-api-key')?.focus();
+    setConnStatus('warn', 'Paste your EPAM DIAL API key first.');
+    return;
+  }
+
+  $btn.disabled = true;
+  $btn.innerHTML = `<span class="spin">${IC.loader}</span> Connecting…`;
+  setConnStatus('info', 'Reaching EPAM DIAL…');
+  if ($select) { $select.disabled = true; $select.innerHTML = `<option>Loading…</option>`; }
+  if ($run)    { $run.disabled = true; $run.classList.replace('btn-primary','btn-ghost'); }
+
+  try {
+    const data = await dialPost('/api/ai-models', { api_key: apiKey });
+    const all  = data?.data || [];
+
+    if (all.length === 0) {
+      setConnStatus('err', `Connected but the models list is empty — check your key's scopes.`);
+      if ($select) { $select.innerHTML = `<option value="" disabled selected>No models returned</option>`; }
+      return;
+    }
+
+    // Cache the full model list so refreshes don't re-fetch
+    try { localStorage.setItem(MODELS_STORE, JSON.stringify(all)); } catch(_) {}
+
+    applyModelList(all);
+
+    const relevant = all.filter(m => isRelevant(m.id));
+    const shown    = relevant.length > 0 ? relevant.length : all.length;
+    setConnStatus('ok',
+      `${IC.checkCircle} Connected · showing ${shown} model${shown !== 1 ? 's' : ''}` +
+      (all.length > shown ? ` of ${all.length} available` : '')
+    );
+
+  } catch (err) {
+    setConnStatus('err', `${IC.xCircle} ${err.message}`);
+    if ($select) {
+      $select.disabled = true;
+      $select.innerHTML = `<option value="" disabled selected>Connection failed — retry</option>`;
+    }
+  } finally {
+    $btn.disabled = false;
+    $btn.innerHTML = `${IC.wifi} Test Connection`;
+  }
+}
+
+function setConnStatus(type, html) {
+  const $s = document.getElementById('conn-status');
+  if (!$s) return;
+  const map = { ok: 'conn-ok', err: 'conn-err', info: 'conn-info', warn: 'conn-info' };
+  $s.className = `conn-status ${map[type] || 'conn-info'} show`;
+  $s.innerHTML = html;
+}
+
+// Debounced auto-trigger when key is typed/pasted
+let _keyDebounce = null;
+function saveDialKey(v) {
+  try { localStorage.setItem(KEY_STORE, v); } catch(_) {}
+  clearTimeout(_keyDebounce);
+  if (v.trim().length > 10) {
+    _keyDebounce = setTimeout(() => testConnection(), 900);
+  }
+}
+
+// ── Markdown renderer ─────────────────────────────────────────────────────────
+function renderMd(md) {
+  return (md || '').split('\n').map(raw => {
+    const line = raw
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const inline = s => s
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, `<span class="ai-code">$1</span>`);
+    if (/^### /.test(line))  return `<div class="ai-h3">${inline(line.slice(4))}</div>`;
+    if (/^## /.test(line))   return `<div class="ai-h2">${inline(line.slice(3))}</div>`;
+    if (/^# /.test(line))    return `<div class="ai-h2">${inline(line.slice(2))}</div>`;
+    if (/^[-*] /.test(line)) return `<div class="ai-li"><div class="ai-li-dot"></div><div>${inline(line.slice(2))}</div></div>`;
+    if (/^\d+\. /.test(line))return `<div class="ai-li"><div class="ai-li-dot"></div><div>${inline(line.replace(/^\d+\. /,''))}</div></div>`;
+    if (line.trim() === '')  return `<div style="height:6px"></div>`;
+    return `<div>${inline(line)}</div>`;
+  }).join('');
+}
+
+// ── Run AI analysis ───────────────────────────────────────────────────────────
+async function runAIPulse() {
+  const apiKey = (document.getElementById('ai-api-key')?.value || '').trim();
+  const model  = document.getElementById('ai-model')?.value || '';
+  const ctx    = document.getElementById('pulse-ctx')?.value || '';
+
+  const $load  = document.getElementById('ai-loading');
+  const $resp  = document.getElementById('ai-response-area');
+  const $body  = document.getElementById('ai-response-body');
+  const $chip  = document.getElementById('ai-model-chip');
+  const $err   = document.getElementById('ai-error-area');
+  const $emsg  = document.getElementById('ai-error-msg');
+  const $btn   = document.getElementById('ai-run-btn');
+
+  if (!apiKey) { alert('Enter your EPAM DIAL API key first.'); document.getElementById('ai-api-key')?.focus(); return; }
+  if (!model)  { alert('Select a model — or click "Test Connection" to load available models.'); return; }
+  if (!ctx || ctx.startsWith('No runs found')) { alert('No run data yet — run the pipeline first.'); return; }
+
+  if ($resp) $resp.style.display = 'none';
+  if ($err)  $err.style.display  = 'none';
+  if ($load) $load.style.display = 'flex';
+  if ($btn)  { $btn.disabled = true; $btn.innerHTML = `<span class="spin">${IC.loader}</span> Analysing…`; }
+
+  try {
+    const data = await dialPost('/api/ai-proxy', {
+      api_key: apiKey, model,
+      messages: [
+        { role: 'system', content:
+          'You are an expert QA engineer and AI pipeline analyst. ' +
+          'Analyse the ANYMUS QA run report and provide a concise, actionable diagnosis. ' +
+          'Use ## for section headers, **bold** for key terms, - for bullet lists.' },
+        { role: 'user', content: ctx },
+      ],
+    });
+
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) throw new Error('Model returned an empty response (no choices[0].message.content).');
+
+    const modelLabel = document.getElementById('ai-model')?.selectedOptions?.[0]?.text || model;
+    const renderedHtml = renderMd(content);
+    if ($body) $body.innerHTML = renderedHtml;
+    if ($chip) $chip.textContent = modelLabel;
+    if ($resp) $resp.style.display = 'block';
+
+    // Persist so page refresh doesn't wipe the analysis
+    try { sessionStorage.setItem(RESP_STORE, JSON.stringify({ html: renderedHtml, model: modelLabel })); } catch(_) {}
+
+  } catch (err) {
+    if ($emsg) $emsg.textContent = err.message;
+    if ($err)  $err.style.display = 'flex';
+  } finally {
+    if ($load) $load.style.display = 'none';
+    if ($btn)  { $btn.disabled = false; $btn.innerHTML = `${IC.zap} Get AI Pulse`; }
+  }
+}
+
+// ── Data load & render ────────────────────────────────────────────────────────
+async function loadAndRender() {
+  let data;
+  try {
+    const res = await fetch('/api/data?t=' + Date.now());
+    data = await res.json();
+  } catch (e) {
+    document.getElementById('app').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon-wrap" style="border-color:var(--fail-border)">
+          ${IC.alertCircle}
+        </div>
+        <div class="empty-title">Could not load data</div>
+        <div class="empty-sub">${esc(e.message)}</div>
+      </div>`;
+    return;
+  }
+
+  const app = document.getElementById('app');
+  if (!data.latest) { app.innerHTML = renderEmpty(); return; }
+
+  // Check if the report sections already exist (subsequent refresh vs first load)
+  const alreadyRendered = !!document.getElementById('section-hero');
+
+  if (!alreadyRendered) {
+    // First load — render everything including the AI panel skeleton
+    app.innerHTML = `
+      <div id="section-hero"></div>
+      <div id="section-stages"></div>
+      <div id="section-trend"></div>
+      ${renderPulse(data.pulse_context, data.latest.allure_url)}
+      <div id="section-history"></div>
+    `;
+    loadSavedDialKey();
+    restoreAIResponse();
+  }
+
+  // Always update only the report sections — AI panel is never touched on refresh
+  document.getElementById('section-hero').innerHTML    = renderHero(data.latest, data.stage_labels);
+  document.getElementById('section-stages').innerHTML  = renderStages(data.latest, data.stage_labels);
+  document.getElementById('section-trend').innerHTML   = renderTrend(data.trend);
+  document.getElementById('section-history').innerHTML = renderHistory(data.runs);
+}
+
+// ── Auto-refresh — updates report data only, never touches the AI panel ───────
+let countdown = 30;
+function tick() {
+  const el = document.getElementById('refresh-timer');
+  if (el) el.innerHTML = `
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+    Refresh in ${countdown}s`;
+  countdown--;
+  if (countdown < 0) { countdown = 30; loadAndRender(); }
+}
+
+loadAndRender();
+setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
